@@ -1,8 +1,7 @@
-# Wealthy Hail App
+# Wealthy Hail Opportunities App
 
 ## Overview
-
-This is the main Flutter application for the Wealthy Hail platform. It serves as the entry point and UI layer, orchestrating business logic from the `core` package and API calls from `api_sdk`.
+This is made for Wealthy Hackathon Jan 2026
 
 ## Project Structure
 
