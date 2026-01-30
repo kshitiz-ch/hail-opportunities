@@ -51,7 +51,7 @@ extension ScreenEx on Screens {
       case Screens.HOME:
         return AllImages().homeInactive;
       case Screens.RESOURCES:
-        return AllImages().resourcesBottomNav;
+        return AllImages().opportunitiesBottomNav;
       default:
         return AllImages().homeInactive;
     }
@@ -68,7 +68,7 @@ extension ScreenEx on Screens {
       case Screens.HOME:
         return AllImages().homeActive;
       case Screens.RESOURCES:
-        return AllImages().resourcesBottomNav;
+        return AllImages().opportunitiesBottomNav;
       default:
         return AllImages().homeActive;
     }

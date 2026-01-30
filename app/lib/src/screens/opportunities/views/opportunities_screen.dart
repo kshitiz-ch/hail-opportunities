@@ -1,3 +1,8 @@
+import 'package:app/src/screens/opportunities/widgets/opportunities_focus.dart';
+import 'package:app/src/screens/opportunities/widgets/opportunities_insurance.dart';
+import 'package:app/src/screens/opportunities/widgets/opportunities_overview.dart';
+import 'package:app/src/screens/opportunities/widgets/opportunities_portfolio.dart';
+import 'package:app/src/screens/opportunities/widgets/opportunities_sip.dart';
 import 'package:app/src/widgets/app_bar/custom_app_bar.dart';
 import 'package:flutter/material.dart';
 
@@ -22,19 +27,15 @@ class OpportunitiesScreen extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 20).copyWith(bottom: 100),
         child: Column(
           children: [
-            // OpportunitiesOverview(
-            //   onRefresh: () {
-            //     // Implement refresh logic here
-            //   },
-            // ),
-            // SizedBox(height: 20),
-            // OpportunitiesFocus(),
-            // SizedBox(height: 20),
-            // OpportunitiesPortfolio(),
-            // SizedBox(height: 20),
-            // OpportunitiesSip(),
-            // SizedBox(height: 20),
-            // OpportunitiesInsurance(),
+            OpportunitiesOverview(),
+            SizedBox(height: 20),
+            OpportunitiesFocus(),
+            SizedBox(height: 20),
+            OpportunitiesPortfolio(),
+            SizedBox(height: 20),
+            OpportunitiesSip(),
+            SizedBox(height: 20),
+            OpportunitiesInsurance(),
           ],
         ),
       ),

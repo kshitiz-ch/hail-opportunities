@@ -108,6 +108,8 @@ class AllImages {
   //Tabs
   final String resourcesBottomNav =
       'assets/images/tabs/resources_bottom_nav.svg';
+  final String opportunitiesBottomNav =
+      'assets/images/tabs/opportunities_bottom_nav.svg';
   final String homeActive = 'assets/images/tabs/home_active_icon.png';
   final String homeInactive = 'assets/images/tabs/home_inactive_icon.png';
   final String proposalsActive = 'assets/images/tabs/proposals_active_icon.png';
