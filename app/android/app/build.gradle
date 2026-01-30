@@ -1,0 +1,187 @@
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
+    id "com.google.gms.google-services"
+    id "com.google.firebase.crashlytics"
+}
+
+
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader ->
+        localProperties.load(reader)
+    }
+}
+
+
+def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
+if (flutterVersionCode == null) {
+    flutterVersionCode = '1'
+}
+
+def flutterVersionName = localProperties.getProperty('flutter.versionName')
+if (flutterVersionName == null) {
+    flutterVersionName = '1.0'
+}
+
+
+def keystoreProperties = new Properties()
+  def keystorePropertiesFile = rootProject.file('key.properties')
+   if (keystorePropertiesFile.exists()) {
+       keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+android {
+    flavorDimensions "flavor-type"
+
+    namespace 'in.wealthy.android.advisor'
+
+    productFlavors {
+        dev {
+            dimension "flavor-type"
+            applicationId "in.wealthy.android.wealthy.advisor.development"
+            resValue "string", "app_name", "Developemnt App"
+        }
+        prod {
+            dimension "flavor-type"
+            applicationId "in.wealthy.android.advisor"
+            resValue "string", "app_name", "Production App"
+        }
+    }
+
+
+    // Updated to API 35 to resolve dependency compatibility issues
+    // Note: Several dependencies (androidx.media3, androidx.core) require API 35+
+    compileSdkVersion 35
+
+    sourceSets {
+        main {
+            assets {
+                srcDirs 'src/main/assets'
+            }
+        }
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+
+    lintOptions {
+        disable 'InvalidPackage'
+        checkReleaseBuilds false
+    }
+
+    defaultConfig {
+        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
+      
+        
+        // Updated to API 35 to resolve dependency compatibility issues
+        compileSdkVersion 35
+        applicationId "in.wealthy.android.advisor"
+        // Updated minSdkVersion from 21 to 23 as required by firebase_analytics library
+        // Note: This means the app will not be available to users running Android versions below API 23 (Android 6.0)
+        minSdkVersion 23
+        // Updated to API 35 for better compatibility with latest dependencies
+        targetSdkVersion 35
+        versionCode flutterVersionCode.toInteger()
+        versionName flutterVersionName
+        multiDexEnabled true
+        
+        // Specify NDK version 29 for 16KB page size support
+        ndkVersion "29.0.14033849"
+    }
+
+    compileOptions {
+        // Enable core library desugaring for flutter_local_notifications compatibility
+        coreLibraryDesugaringEnabled true
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+
+    signingConfigs {
+       release {
+           keyAlias keystoreProperties['keyAlias']
+           keyPassword keystoreProperties['keyPassword']
+           storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+           storePassword keystoreProperties['storePassword']
+       }
+    }
+    buildTypes {
+       release {
+           signingConfig signingConfigs.release
+       }
+    }
+}
+
+flutter {
+    source '../..'
+}
+
+dependencies {
+    // Core library desugaring for Java 8+ language features on older Android versions
+    // Required by flutter_local_notifications and other dependencies
+    // Updated to version 2.1.4+ as required by flutter_local_notifications
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
+    
+    // Local JAR files support
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    
+    // AndroidX Lifecycle components for MVVM architecture
+    implementation "androidx.lifecycle:lifecycle-viewmodel:2.5.1"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1"
+    
+    // Google Play Services basement (required by other Play Services)
+    implementation 'com.google.android.gms:play-services-basement:17.6.0'
+    
+    // Google Play Services Auth for Phone Number Hint API
+    implementation 'com.google.android.gms:play-services-auth:21.2.0'
+    
+    // Firebase BOM (Bill of Materials) - manages all Firebase library versions
+    // Note: Using older BOM version 26.1.0 for compatibility
+    implementation platform('com.google.firebase:firebase-bom:26.1.0')
+    
+    // Firebase Cloud Messaging for push notifications
+    implementation 'com.google.firebase:firebase-messaging:21.0.1'
+    
+    // MultiDex support for apps with more than 65K methods
+    implementation 'androidx.multidex:multidex:2.0.1'
+    
+    // Firebase Crashlytics for crash reporting
+    implementation 'com.google.firebase:firebase-crashlytics:18.1.0'
+    
+    // Firebase Analytics - migrated from firebase-analytics-ktx
+    // Note: KTX libraries were deprecated in July 2025 and merged into main modules
+    // All Kotlin extension functions are now available in the main library
+    implementation 'com.google.firebase:firebase-analytics'
+    
+    // Retrofit and OkHttp for API communication
+    implementation 'com.squareup.retrofit2:converter-gson:2.7.0'
+    implementation("com.squareup.okhttp3:okhttp:4.5.0")
+    
+    // Camera dependencies for selfie and AI camera functionality
+    implementation "androidx.camera:camera-view:1.5.0"
+    implementation "androidx.camera:camera-camera2:1.5.0"
+    implementation "androidx.camera:camera-lifecycle:1.5.0"
+    
+    // AndroidX Preference library with Kotlin extensions
+    implementation 'androidx.preference:preference-ktx:1.1.1'
+    
+    // Google ML Kit for face detection in camera
+    implementation 'com.google.android.gms:play-services-mlkit-face-detection:16.2.0'
+    
+    // Material Design components
+    implementation 'com.google.android.material:material:1.4.0'
+    
+    // AndroidX Activity and Fragment with Kotlin extensions
+    implementation "androidx.activity:activity-ktx:1.3.1"
+    implementation "androidx.fragment:fragment-ktx:1.3.6"
+    
+    // Firebase Performance Monitoring - migrated from firebase-perf-ktx
+    // Note: KTX libraries were deprecated in July 2025 and merged into main modules
+    // All Kotlin extension functions are now available in the main library
+    // When using the BoM, versions are managed automatically
+    implementation 'com.google.firebase:firebase-perf'
+}
+

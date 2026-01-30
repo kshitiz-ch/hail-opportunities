@@ -1,0 +1,23 @@
+const String partnerARN = r'''
+    query{
+  hydra{
+    partnerArn{
+      id
+      externalId
+      arn
+      euin
+      arnStatus
+      status
+      additionalEuins
+      nameAsPerArn
+      addressAsPerArn
+      phoneNumberAsPerArn
+      arnValidFrom
+      arnValidFrom
+      partnerApprovedAt
+      isArnActive
+      arnValidTill
+    }
+  }
+}
+''';

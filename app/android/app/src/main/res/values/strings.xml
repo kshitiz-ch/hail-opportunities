@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="default_notification_channel_id">channel_id</string>
+    <string name="channel_description">background notification</string>
+    <string name="facebook_app_id">794626151162234</string>
+    <string name="fb_login_protocol_scheme">fb794626151162234</string>
+    <string name="freshchat_file_provider_authority">com.wealthy.advisorapp.provider</string>
+</resources>

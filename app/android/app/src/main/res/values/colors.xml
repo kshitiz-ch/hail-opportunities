@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#6725F4</color>
+	<color name="ic_launcher_background">#6725F4</color>
+     <!-- Freshchat custom colors -->
+    <color name="primary_color">#6725F4</color>
+    <color name="transparent">@android:color/transparent</color>
+    <color name="freshchat_text_color">#707070</color>
+    <color name="freshchat_text_color_link">#2C5CC5</color>
+    <color name="faq_list_item_color">#111111</color> 
+    <color name="custom_freshchat_contact_us_btn_bg_normal">@color/primary_color</color>
+    <color name="custom_freshchat_contact_us_btn_bg_pressed">#814af6</color>
+</resources>

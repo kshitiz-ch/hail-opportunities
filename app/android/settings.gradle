@@ -1,0 +1,32 @@
+pluginManagement {
+    def flutterSdkPath = {
+        def properties = new Properties()
+        file("local.properties").withInputStream { properties.load(it) }
+        def flutterSdkPath = properties.getProperty("flutter.sdk")
+        assert flutterSdkPath != null, "flutter.sdk not set in local.properties"
+        return flutterSdkPath
+    }()
+
+    includeBuild("$flutterSdkPath/packages/flutter_tools/gradle")
+
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+plugins {
+    id "dev.flutter.flutter-plugin-loader" version "1.0.0" // apply true
+    // Updated Android Gradle Plugin to support compileSdk 35 and 16KB page size
+    // Version 8.6.0+ supports Android API 35, 16KB page size, and androidx.core:1.16.0+
+    id "com.android.application" version "8.6.0" apply false
+    // Updated Kotlin version to 2.1.0 to match Google Play Services libraries
+    // Google Play Services 23.0.0+ requires Kotlin 2.1.0+ for compatibility
+    id "org.jetbrains.kotlin.android" version "2.1.0" apply false
+    id "com.google.gms.google-services" version "4.4.0" apply false
+    id "com.google.firebase.crashlytics" version "2.9.9" apply false
+    id "com.google.firebase.firebase-perf" version "1.4.2" apply false
+}
+
+include ':app'

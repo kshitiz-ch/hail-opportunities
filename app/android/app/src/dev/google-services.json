@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "816921677247",
+    "project_id": "advisor-development-8a2fd",
+    "storage_bucket": "advisor-development-8a2fd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:816921677247:android:e0ef31ce920c4af98ee50a",
+        "android_client_info": {
+          "package_name": "in.wealthy.android.wealthy.advisor.development"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "816921677247-s1lutfgpo662p3f6uok7erargcb02d5n.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "in.wealthy.android.wealthy.advisor.development",
+            "certificate_hash": "867747754c8239ff8ad71799e16c4eadb73757aa"
+          }
+        },
+        {
+          "client_id": "816921677247-6vlupudpaahddg31va2p9rmldkfcb0ph.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAxFnZVzvGPNX2pjtWWSDE-d2F8XmYulO0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "816921677247-6vlupudpaahddg31va2p9rmldkfcb0ph.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "816921677247-5c9jqiqi57aad68l8ma94fbncorqo1qn.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "in.wealthy.ios.wealthy.advisor.development"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

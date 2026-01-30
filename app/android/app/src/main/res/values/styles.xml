@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Theme applied to the Android Window while the process is starting -->
+    <style name="LaunchTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Show a splash screen on the activity. Automatically removed when
+             Flutter draws its first frame -->
+        <item name="android:windowBackground">@drawable/launch_background</item>
+    </style>
+    <!-- Theme applied to the Android Window as soon as the process has started.
+         This theme determines the color of the Android Window while your
+         Flutter UI initializes, as well as behind your Flutter UI while its
+         running.
+         
+         This Theme is only used starting with V2 of Flutter's Android embedding. -->
+    <style name="NormalTheme" parent="@android:style/Theme.Black.NoTitleBar">
+        <item name="android:windowBackground">@android:color/white</item>
+    </style>
+
+     <style name="FreshchatTextAppearance" parent="TextAppearance.AppCompat.Medium">
+        <item name="android:textColor">@color/freshchat_text_color</item>
+        <item name="android:textColorLink">@color/freshchat_text_color_link</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+        <!-- <item name="android:fontFamily">@font/marcellus_regular</item> -->
+    </style>
+
+    <style name="CustomChannelNameTextStyle" parent="Widget.Freshchat.ChannelName">
+        <item name="android:textAppearance">@style/FreshchatTextAppearance</item>
+    </style>
+
+    <style name="ContactUsTextStyle" parent="Widget.Freshchat.ContactUs">
+        <item name="android:background">@drawable/custom_freshchat_contact_us_btn_bg</item>
+    </style>
+
+    <style name="FAQListItemStyle" parent="Widget.Freshchat.FAQListItem">
+        <item name="android:textColor"> @color/faq_list_item_color </item>
+    </style>
+    
+    <!-- Custom Freshchat Theme -->
+    <style name="CustomFreshchatTheme" parent="Theme.Freshchat.Light">
+        <!-- <item name="freshchatChannelNameTextStyle">@style/CustomChannelNameTextStyle</item> -->
+        <item name="freshchatContactUsTextStyle">@style/ContactUsTextStyle</item>
+        <item name="colorPrimary">@color/transparent</item>
+        <item name="colorPrimaryDark">@color/transparent</item>
+        <item name="android:fontFamily">@font/mavenpro_regular</item>
+        <item name="freshchatFAQListItemStyle">@style/FAQListItemStyle</item>
+    </style> 
+
+    <style name="Theme.Freshchat.SelectedTheme" parent="CustomFreshchatTheme" />
+
+</resources>

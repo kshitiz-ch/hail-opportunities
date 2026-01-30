@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "268846936182",
+    "project_id": "prod-advisor-mobile-app",
+    "storage_bucket": "prod-advisor-mobile-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:268846936182:android:cde31eb68e2c96dcdcef57",
+        "android_client_info": {
+          "package_name": "in.wealthy.android.advisor"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "268846936182-ibhbpvfhaajmtn46kli1kvro2ora32o6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD4KAuR7yiae-1bNXWuZw2FJWMso2g-sT0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "268846936182-ibhbpvfhaajmtn46kli1kvro2ora32o6.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "268846936182-gger572dcba75edaqsnpjid8uu23g818.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "in.wealthy.ios.advisor"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

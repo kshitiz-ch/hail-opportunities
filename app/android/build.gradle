@@ -1,0 +1,34 @@
+
+allprojects {
+    repositories {
+        google()
+        jcenter()
+        mavenCentral()
+    // removed empty flatDir repository (caused: "You must specify at least one directory for a flat directory repository")
+    }
+
+}
+
+subprojects {
+    afterEvaluate { project ->
+        if (project.hasProperty('android')) {
+            project.android {
+                if (namespace == null) {
+                    namespace project.group
+                }
+            }
+        }
+    }
+}
+
+rootProject.buildDir = '../build'
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+subprojects {
+    project.evaluationDependsOn(':app')
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
+}
