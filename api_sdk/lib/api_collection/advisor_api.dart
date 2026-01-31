@@ -653,7 +653,7 @@ class AdvisorAPI {
     dynamic headers = await ApiSdk.getHeaderInfo(apiKey);
     try {
       final apiUrl =
-          'https://d35234f9430c.ngrok-free.app/api/portfolio/review-opportunities';
+          'https://fec60eddd327.ngrok-free.app/api/portfolio/review-opportunities';
 
       final response = await RestApiHandlerData.getData(apiUrl, headers);
       return response;
@@ -666,7 +666,7 @@ class AdvisorAPI {
     dynamic headers = await ApiSdk.getHeaderInfo(apiKey);
     try {
       final apiUrl =
-          'https://d35234f9430c.ngrok-free.app/api/opportunities/stagnant-sips?limit=10';
+          'https://fec60eddd327.ngrok-free.app/api/opportunities/stagnant-sips?limit=10';
 
       final response = await RestApiHandlerData.getData(apiUrl, headers);
       return response;
@@ -679,7 +679,7 @@ class AdvisorAPI {
     dynamic headers = await ApiSdk.getHeaderInfo(apiKey);
     try {
       final apiUrl =
-          'https://d35234f9430c.ngrok-free.app/api/opportunities/stopped-sips?limit=10';
+          'https://fec60eddd327.ngrok-free.app/api/opportunities/stopped-sips?limit=10';
 
       final response = await RestApiHandlerData.getData(apiUrl, headers);
       return response;
@@ -692,7 +692,7 @@ class AdvisorAPI {
     dynamic headers = await ApiSdk.getHeaderInfo(apiKey);
     try {
       final apiUrl =
-          'https://d35234f9430c.ngrok-free.app/api/insurance/opportunities/coverage-gaps';
+          'https://fec60eddd327.ngrok-free.app/api/insurance/opportunities/coverage-gaps';
 
       final response = await RestApiHandlerData.getData(apiUrl, headers);
       return response;

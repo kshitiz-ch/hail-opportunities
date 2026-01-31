@@ -1,7 +1,10 @@
+import 'package:app/src/config/api_response.dart';
+import 'package:app/src/config/constants/enums.dart';
 import 'package:app/src/controllers/opportunities_controller.dart';
 import 'package:app/src/screens/opportunities/views/opportunities_portfolio_screen.dart';
 import 'package:app/src/screens/opportunities/widgets/portfolio_opportunity_item.dart';
 import 'package:app/src/screens/opportunities/widgets/portfolio_review_bottomsheet.dart';
+import 'package:app/src/widgets/misc/skelton_loader_card.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -29,6 +32,15 @@ class OpportunitiesPortfolio extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder<OpportunitiesController>(
       builder: (controller) {
+        // Show skeleton loader when loading
+        if (controller.portfolioOpportunitiesResponse.state ==
+            NetworkState.loading) {
+          return const SkeltonLoaderCard(
+            height: 200,
+            margin: EdgeInsets.symmetric(horizontal: 20),
+          );
+        }
+
         final portfolioClients =
             controller.portfolioOpportunities?.clients ?? [];
 

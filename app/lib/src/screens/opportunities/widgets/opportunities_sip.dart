@@ -1,7 +1,10 @@
+import 'package:app/src/config/api_response.dart';
+import 'package:app/src/config/constants/enums.dart';
 import 'package:app/src/config/routes/router.gr.dart';
 import 'package:app/src/controllers/opportunities_controller.dart';
 import 'package:app/src/screens/opportunities/views/opportunities_sip_screen.dart';
 import 'package:app/src/screens/opportunities/widgets/sip_opportunity_item.dart';
+import 'package:app/src/widgets/misc/skelton_loader_card.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:core/modules/clients/models/client_list_model.dart';
 import 'package:core/modules/clients/models/new_client_model.dart';
@@ -46,6 +49,17 @@ class _OpportunitiesSipState extends State<OpportunitiesSip> {
   Widget build(BuildContext context) {
     return GetBuilder<OpportunitiesController>(
       builder: (controller) {
+        // Show skeleton loader when loading
+        if (controller.stagnantSipOpportunitiesResponse.state ==
+                NetworkState.loading &&
+            controller.stoppedSipOpportunitiesResponse.state ==
+                NetworkState.loading) {
+          return const SkeltonLoaderCard(
+            height: 200,
+            margin: EdgeInsets.symmetric(horizontal: 20),
+          );
+        }
+
         final stagnantOpps =
             controller.stagnantSipOpportunities?.opportunities ?? [];
         final stoppedOpps =

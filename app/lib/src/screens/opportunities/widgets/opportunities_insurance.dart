@@ -226,11 +226,14 @@
 //   });
 // }
 
+import 'package:app/src/config/api_response.dart';
+import 'package:app/src/config/constants/enums.dart';
 import 'package:app/src/config/constants/string_constants.dart';
 import 'package:app/src/config/routes/router.gr.dart';
 import 'package:app/src/controllers/opportunities_controller.dart';
 import 'package:app/src/screens/opportunities/views/opportunities_insurance_screen.dart';
 import 'package:app/src/screens/opportunities/widgets/insurance_opportunity_item.dart';
+import 'package:app/src/widgets/misc/skelton_loader_card.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:core/modules/opportunities/models/insurance_opportunity_model.dart';
 import 'package:core/modules/opportunities/serviecs/pdf_generation_service.dart';
@@ -244,6 +247,15 @@ class OpportunitiesInsurance extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder<OpportunitiesController>(
       builder: (controller) {
+        // Show skeleton loader when loading
+        if (controller.insuranceOpportunitiesResponse.state ==
+            NetworkState.loading) {
+          return const SkeltonLoaderCard(
+            height: 200,
+            margin: EdgeInsets.symmetric(horizontal: 20),
+          );
+        }
+
         final insuranceOpps =
             controller.insuranceOpportunities?.opportunities ?? [];
 
