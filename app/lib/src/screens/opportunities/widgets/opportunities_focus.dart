@@ -244,17 +244,38 @@ class ClientCard extends StatelessWidget {
                 );
               }).toList(),
             ),
-            const SizedBox(height: 16),
-            // Pitch Hook (Alert message)
-            Text(
-              '💡 ${client.pitchHook}',
-              style: const TextStyle(
-                fontSize: 13,
-                color: Color(0xFF4B5563),
-                height: 1.5,
+            const SizedBox(height: 12),
+            // Pitch Hook (Tip Box Style)
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF0FDF4),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: const Color(0xFFBBF7D0), width: 1),
               ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(
+                    Icons.lightbulb_outline,
+                    size: 16,
+                    color: Color(0xFF16A34A),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      client.pitchHook,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF166534),
+                        height: 1.4,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

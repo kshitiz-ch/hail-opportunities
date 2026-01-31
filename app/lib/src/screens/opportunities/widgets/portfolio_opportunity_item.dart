@@ -19,97 +19,162 @@ class PortfolioOpportunityItem extends StatelessWidget {
     this.color = const Color(0xFFE9D5FF),
   }) : super(key: key);
 
+  String _sanitizeCurrency(String val) {
+    return val.replaceAll('₹', 'Rs. ').replaceAll('Rs.Rs.', 'Rs.').trim();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: Row(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFAFAFA),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Avatar
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-            ),
-            child: Center(
-              child: Text(
-                initials,
-                style: const TextStyle(
-                  color: Color(0xFF6B46E5),
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
+          // Top Row: Avatar, Name, Schemes Badge
+          Row(
+            children: [
+              // Avatar
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: color,
+                  shape: BoxShape.circle,
                 ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-
-          // Details
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF2D3748),
+                child: Center(
+                  child: Text(
+                    initials,
+                    style: const TextStyle(
+                      color: Color(0xFF6B46E5),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
-                const SizedBox(height: 4),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              ),
+              const SizedBox(width: 12),
+              // Name
+              Expanded(
+                child: Text(
+                  name,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF1A1A1A),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              // Schemes Badge
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFEF2F2),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      '$fundsLagging Funds Lagging',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Color(0xFFEF4444),
-                        fontWeight: FontWeight.w500,
-                      ),
+                    const Icon(
+                      Icons.trending_down,
+                      size: 12,
+                      color: Color(0xFFDC2626),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 4),
                     Text(
-                      'Value: $value',
+                      '$fundsLagging Schemes',
                       style: const TextStyle(
-                        fontSize: 12,
-                        color: Color(0xFF6B7280),
+                        fontSize: 11,
+                        color: Color(0xFFDC2626),
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-
-          // View Funds Button
-          ElevatedButton(
-            onPressed: () {
-              PortfolioReviewBottomSheet.show(context, client);
-            },
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-              backgroundColor: const Color(0xfff9fafb),
-              foregroundColor: const Color(0xFF2D3748),
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-                side: const BorderSide(
-                  color: Color(0xFFe0e5eb),
-                  width: 1,
+          
+          const SizedBox(height: 14),
+          
+          // Hero Metric Row: Value at Risk + CTA
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Value at Risk - Hero Metric
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Value at Risk',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Color(0xFF6B7280),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      _sanitizeCurrency(value),
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFFD97706),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              
+              // Prominent CTA - Review Portfolio
+              GestureDetector(
+                onTap: () {
+                  PortfolioReviewBottomSheet.show(context, client);
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF6725F4),
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF6725F4).withOpacity(0.3),
+                        blurRadius: 6,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.pie_chart_outline_rounded,
+                        color: Colors.white,
+                        size: 16,
+                      ),
+                      SizedBox(width: 6),
+                      Text(
+                        'Review Portfolio',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            child: const Text(
-              'View Funds',
-              style: TextStyle(
-                color: Color(0xFF2D3748),
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            ],
           ),
         ],
       ),

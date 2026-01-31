@@ -11,8 +11,9 @@ class InsuranceOpportunityItem extends StatelessWidget {
   }) : super(key: key);
 
   String _getInitials(String name) {
+    if (name.isEmpty) return '?';
     final parts = name.split(' ');
-    if (parts.length >= 2) {
+    if (parts.length >= 2 && parts[0].isNotEmpty && parts[1].isNotEmpty) {
       return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
     }
     return name.substring(0, 1).toUpperCase();
@@ -20,128 +21,173 @@ class InsuranceOpportunityItem extends StatelessWidget {
 
   String _formatCurrency(double value) {
     if (value >= 10000000) {
-      return '₹${(value / 10000000).toStringAsFixed(1)} Cr';
+      return 'Rs. ${(value / 10000000).toStringAsFixed(1)}Cr';
     } else if (value >= 100000) {
-      return '₹${(value / 100000).toStringAsFixed(1)} L';
+      return 'Rs. ${(value / 100000).toStringAsFixed(1)}L';
+    } else if (value >= 1000) {
+      return 'Rs. ${(value / 1000).toStringAsFixed(1)}K';
     }
-    return '₹${value.toStringAsFixed(0)}';
+    return 'Rs. ${value.toStringAsFixed(0)}';
   }
 
   @override
   Widget build(BuildContext context) {
     final initials = _getInitials(opportunity.userName);
-    final name = opportunity.userName;
 
-    return InkWell(
-      onTap: () {
-        PdfGeneratorService.generateInsuranceProposal(opportunity);
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 2),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            // Avatar
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: const Color(0xFFEDE9FE),
-                shape: BoxShape.circle,
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFAFAFA),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Top Row: Avatar, Name, Status Badge
+          Row(
+            children: [
+              // Avatar
+              Container(
+                width: 44,
+                height: 44,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFEDE9FE),
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Text(
+                    initials,
+                    style: const TextStyle(
+                      color: Color(0xFF6725F4),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
               ),
-              child: Center(
+              const SizedBox(width: 12),
+              // Name & Age
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      opportunity.userName,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF1A1A1A),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Age ${opportunity.age ?? 'N/A'}',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF6B7280),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Status Badge
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFEE2E2),
+                  borderRadius: BorderRadius.circular(6),
+                ),
                 child: Text(
-                  initials,
+                  opportunity.insuranceStatus ?? 'No Cover',
                   style: const TextStyle(
-                    color: Color(0xFF6725F4),
-                    fontSize: 16,
+                    fontSize: 10,
+                    color: Color(0xFFDC2626),
                     fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
-            ),
-            const SizedBox(width: 12),
-
-            // Details
-            Expanded(
-              child: Column(
+            ],
+          ),
+          
+          const SizedBox(height: 14),
+          
+          // Hero Metric Row: Wealth at Risk + CTA
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Wealth at Risk - Hero Metric
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      Flexible(
-                        child: Text(
-                          name,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF2D3748),
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
+                  const Text(
+                    'Wealth at Risk',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Color(0xFF6B7280),
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Text(
-                        'Age ${opportunity.age ?? 'N/A'}',
-                        style: const TextStyle(
-                            fontSize: 12, color: Color(0xFF6B7280)),
+                  const SizedBox(height: 2),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      _formatCurrency(opportunity.mfCurrentValue),
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFFDC2626),
                       ),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFEF2F2),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          opportunity.insuranceStatus ?? 'No Coverage',
-                          style: const TextStyle(
-                            fontSize: 10,
-                            color: Color(0xFFDC2626),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Text(
-                        _formatCurrency(opportunity.mfCurrentValue),
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.orange[800],
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      const Text(
-                        'at Risk',
-                        style:
-                            TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
-                      ),
-                    ],
+                    ),
                   ),
                 ],
               ),
-            ),
-            const Icon(
-              Icons.arrow_forward_ios,
-              size: 16,
-              color: Color(0xFF9CA3AF),
-            ),
-          ],
-        ),
+              
+              // Prominent CTA - Pitch Protection
+              GestureDetector(
+                onTap: () {
+                  PdfGeneratorService.generateInsuranceProposal(opportunity);
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0D9488),
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF0D9488).withOpacity(0.3),
+                        blurRadius: 6,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.shield_outlined,
+                        color: Colors.white,
+                        size: 16,
+                      ),
+                      SizedBox(width: 6),
+                      Text(
+                        'Pitch Protection',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
