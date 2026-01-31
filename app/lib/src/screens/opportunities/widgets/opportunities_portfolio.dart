@@ -150,7 +150,7 @@ class OpportunitiesPortfolio extends StatelessWidget {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        '📉 Churn Risk: ${portfolioClients.length} client${portfolioClients.length > 1 ? 's have' : ' has'} underperforming funds. Propose a rebalance before they withdraw.',
+                        'Churn Risk: ${portfolioClients.length} client${portfolioClients.length > 1 ? 's have' : ' has'} underperforming funds. Propose a rebalance before they withdraw.',
                         style: const TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,

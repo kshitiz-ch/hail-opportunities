@@ -365,7 +365,7 @@ class OpportunitiesInsurance extends StatelessWidget {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        '🛡️ Asset Protection: These HNI clients have wealth at risk. Pitching a term plan protects their portfolio.',
+                        'Asset Protection: These HNI clients have wealth at risk. Pitching a term plan protects their portfolio.',
                         style: const TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,

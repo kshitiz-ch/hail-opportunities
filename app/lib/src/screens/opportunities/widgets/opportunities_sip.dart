@@ -171,7 +171,7 @@ class _OpportunitiesSipState extends State<OpportunitiesSip> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          '💡 Revenue Alert: ${stoppedOpps.length} client${stoppedOpps.length > 1 ? 's have' : ' has'} stopped SIPs. Reviving them recovers AUM.',
+                          'Revenue Alert: ${stoppedOpps.length} client${stoppedOpps.length > 1 ? 's have' : ' has'} stopped SIPs. Reviving them recovers AUM.',
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w500,
