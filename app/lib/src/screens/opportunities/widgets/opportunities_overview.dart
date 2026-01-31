@@ -68,7 +68,7 @@ class OpportunitiesOverview extends StatelessWidget {
                   // Retry button
                   InkWell(
                     onTap: () {
-                      controller.forceRefreshOpportunitiesOverview();
+                      controller.getOpportunitiesOverview(forceRefresh: true);
                     },
                     borderRadius: BorderRadius.circular(20),
                     child: Container(
