@@ -1,5 +1,6 @@
 import 'package:app/src/controllers/opportunities_controller.dart';
 import 'package:app/src/screens/opportunities/views/opportunities_portfolio_screen.dart';
+import 'package:app/src/screens/opportunities/widgets/portfolio_opportunity_item.dart';
 import 'package:app/src/screens/opportunities/widgets/portfolio_review_bottomsheet.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -37,6 +38,7 @@ class OpportunitiesPortfolio extends StatelessWidget {
 
         return Container(
           padding: const EdgeInsets.all(16),
+          margin: const EdgeInsets.symmetric(horizontal: 20),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
@@ -115,8 +117,7 @@ class OpportunitiesPortfolio extends StatelessWidget {
                       const Divider(height: 1, color: Color(0xFFE5E7EB)),
                       const SizedBox(height: 12),
                     ],
-                    _buildPortfolioItem(
-                      context,
+                    PortfolioOpportunityItem(
                       client: client,
                       initials: _getInitials(client.clientName),
                       name: client.clientName,
@@ -131,110 +132,6 @@ class OpportunitiesPortfolio extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-
-  Widget _buildPortfolioItem(
-    BuildContext context, {
-    required client,
-    required String initials,
-    required String name,
-    required int fundsLagging,
-    required String value,
-    required Color color,
-  }) {
-    return Container(
-      child: Row(
-        children: [
-          // Avatar
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-            ),
-            child: Center(
-              child: Text(
-                initials,
-                style: const TextStyle(
-                  color: Color(0xFF6B46E5),
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-
-          // Details
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF2D3748),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '$fundsLagging Funds Lagging',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Color(0xFFEF4444),
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Value: $value',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Color(0xFF6B7280),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-
-          // View Funds Button
-          ElevatedButton(
-            onPressed: () {
-              PortfolioReviewBottomSheet.show(context, client);
-            },
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-              backgroundColor: const Color(0xfff9fafb),
-              foregroundColor: const Color(0xFF2D3748),
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-                side: const BorderSide(
-                  color: Color(0xFFe0e5eb),
-                  width: 1,
-                ),
-              ),
-            ),
-            child: const Text(
-              'View Funds',
-              style: TextStyle(
-                color: Color(0xFF2D3748),
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

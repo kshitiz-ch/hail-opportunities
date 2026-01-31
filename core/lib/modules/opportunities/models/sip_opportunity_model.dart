@@ -148,7 +148,7 @@ class StagnantSipOpportunity {
   final String agentExternalId;
   final String agentName;
   final String sipMetaId;
-  final String schemeName;
+  final List<String> schemeName;
   final double currentSip;
   final String createdAt;
   final int monthsStagnant;
@@ -176,7 +176,12 @@ class StagnantSipOpportunity {
       agentExternalId: json['agent_external_id'] ?? '',
       agentName: json['agent_name'] ?? '',
       sipMetaId: json['sip_meta_id'] ?? '',
-      schemeName: json['scheme_name'] ?? '',
+      schemeName: json['scheme_name'] != null
+          ? (json['scheme_name'] is List
+              ? List<String>.from(
+                  (json['scheme_name'] as List).map((e) => e.toString()))
+              : [json['scheme_name'].toString()])
+          : [],
       currentSip: (json['current_sip'] ?? 0).toDouble(),
       createdAt: json['created_at'] ?? '',
       monthsStagnant: json['months_stagnant'] ?? 0,

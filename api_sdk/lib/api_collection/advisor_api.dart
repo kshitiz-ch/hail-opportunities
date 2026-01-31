@@ -666,7 +666,7 @@ class AdvisorAPI {
     dynamic headers = await ApiSdk.getHeaderInfo(apiKey);
     try {
       final apiUrl =
-          'https://d35234f9430c.ngrok-free.app/api/opportunities/stagnant-sips';
+          'https://d35234f9430c.ngrok-free.app/api/opportunities/stagnant-sips?limit=10';
 
       final response = await RestApiHandlerData.getData(apiUrl, headers);
       return response;
@@ -679,7 +679,7 @@ class AdvisorAPI {
     dynamic headers = await ApiSdk.getHeaderInfo(apiKey);
     try {
       final apiUrl =
-          'https://d35234f9430c.ngrok-free.app/api/opportunities/stopped-sips';
+          'https://d35234f9430c.ngrok-free.app/api/opportunities/stopped-sips?limit=10';
 
       final response = await RestApiHandlerData.getData(apiUrl, headers);
       return response;

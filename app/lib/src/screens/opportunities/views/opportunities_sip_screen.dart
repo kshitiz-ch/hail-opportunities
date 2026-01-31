@@ -1,5 +1,6 @@
 import 'package:app/src/config/routes/router.gr.dart';
 import 'package:app/src/controllers/opportunities_controller.dart';
+import 'package:app/src/screens/opportunities/widgets/sip_opportunity_item.dart';
 import 'package:app/src/widgets/app_bar/custom_app_bar.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:core/modules/clients/models/client_list_model.dart';
@@ -93,93 +94,32 @@ class _OpportunitiesSipScreenState extends State<OpportunitiesSipScreen> {
                   itemBuilder: (context, index) {
                     if (selectedTab == 'Stagnant') {
                       final opp = stagnantOpps[index];
-                      // Create client object
-                      final client = Client.fromJson({
-                        'user_id': opp.userId,
-                        'name': opp.userName,
-                      });
-                      return InkWell(
-                        onTap: () {
-                          AutoRouter.of(context).push(
-                            SipDetailRoute(
-                                client: client,
-                                sipUserData: SipUserDataModel.fromJson({})),
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: const Color(0xFFE5E7EB),
-                              width: 1,
+                      return Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: const Color(0xFFE5E7EB),
+                            width: 1,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.1),
+                              spreadRadius: 1,
+                              blurRadius: 10,
+                              offset: const Offset(0, 2),
                             ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.1),
-                                spreadRadius: 1,
-                                blurRadius: 10,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            children: [
-                              // Details
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      opp.userName,
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color: Color(0xFF2D3748),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      opp.schemeName,
-                                      style: const TextStyle(
-                                        fontSize: 13,
-                                        color: Color(0xFF6B7280),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-
-                              // Status Badge with Arrow
-                              Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 12, vertical: 6),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFF8EEE2),
-                                      borderRadius: BorderRadius.circular(50),
-                                    ),
-                                    child: Text(
-                                      'No Step-up: ${opp.monthsStagnant} Yrs',
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        color: Color(0xFFF98814),
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  const Icon(
-                                    Icons.arrow_forward_ios,
-                                    size: 16,
-                                    color: Color(0xFF9CA3AF),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
+                          ],
+                        ),
+                        child: SipOpportunityItem(
+                          userId: opp.userId,
+                          name: opp.userName,
+                          fundName: opp.schemeName,
+                          statusText:
+                              'No Step-up in ${opp.monthsStagnant} Months',
+                          isStopped: false,
+                          stagnantOpportunity: opp,
                         ),
                       );
                     } else {
@@ -202,61 +142,14 @@ class _OpportunitiesSipScreenState extends State<OpportunitiesSipScreen> {
                             ),
                           ],
                         ),
-                        child: Row(
-                          children: [
-                            // Details
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    opp.userName,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      color: Color(0xFF2D3748),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'Last Paid: ${_formatDate(opp.lastSuccessDate)}',
-                                    style: const TextStyle(
-                                      fontSize: 13,
-                                      color: Color(0xFF6B7280),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            // Status Badge with Arrow
-                            Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 6),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFFFE5E5),
-                                    borderRadius: BorderRadius.circular(50),
-                                  ),
-                                  child: Text(
-                                    '${opp.daysSinceAnySuccess} Days Silent',
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      color: Color(0xFFDC2626),
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                const Icon(
-                                  Icons.arrow_forward_ios,
-                                  size: 16,
-                                  color: Color(0xFF9CA3AF),
-                                ),
-                              ],
-                            ),
+                        child: SipOpportunityItem(
+                          userId: opp.userId,
+                          name: opp.userName,
+                          fundName: [
+                            'Last Paid: ${_formatDate(opp.lastSuccessDate)}'
                           ],
+                          statusText: '${opp.daysSinceAnySuccess} Days Silent',
+                          isStopped: true,
                         ),
                       );
                     }

@@ -69,6 +69,7 @@ dependencies:
   visibility_detector: 0.4.0+2
   firebase_remote_config: 6.0.0
   local_auth: 2.3.0
+  open_filex: 4.7.0
   flutter:
     sdk: flutter
   flutter_bloc: 9.1.1

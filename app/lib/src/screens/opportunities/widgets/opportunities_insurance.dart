@@ -230,48 +230,15 @@ import 'package:app/src/config/constants/string_constants.dart';
 import 'package:app/src/config/routes/router.gr.dart';
 import 'package:app/src/controllers/opportunities_controller.dart';
 import 'package:app/src/screens/opportunities/views/opportunities_insurance_screen.dart';
+import 'package:app/src/screens/opportunities/widgets/insurance_opportunity_item.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:core/modules/opportunities/models/insurance_opportunity_model.dart';
+import 'package:core/modules/opportunities/serviecs/pdf_generation_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class OpportunitiesInsurance extends StatelessWidget {
   const OpportunitiesInsurance({Key? key}) : super(key: key);
-
-  String _getInitials(String name) {
-    final parts = name.split(' ');
-    if (parts.length >= 2) {
-      return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
-    }
-    return name.substring(0, 1).toUpperCase();
-  }
-
-  String _formatCurrency(double value) {
-    if (value >= 100000) {
-      return '₹${(value / 100000).toStringAsFixed(1)}L';
-    } else if (value >= 1000) {
-      return '₹${(value / 1000).toStringAsFixed(1)}K';
-    }
-    return '₹${value.toStringAsFixed(0)}';
-  }
-
-  String _getClientCategory(double mfValue) {
-    if (mfValue >= 10000000) return 'Ultra HNI';
-    if (mfValue >= 5000000) return 'HNI';
-    return 'High Net Worth';
-  }
-
-  Map<String, dynamic> _getCategoryStyle(String category) {
-    if (category == 'Ultra HNI' || category == 'HNI') {
-      return {
-        'bgColor': const Color(0xFFEDE9FE),
-        'textColor': const Color(0xFF6725F4),
-      };
-    }
-    return {
-      'bgColor': const Color(0xFFF8EEE2),
-      'textColor': const Color(0xFFF98814),
-    };
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -285,6 +252,7 @@ class OpportunitiesInsurance extends StatelessWidget {
         }
 
         return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 20),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: Colors.white,
@@ -357,8 +325,6 @@ class OpportunitiesInsurance extends StatelessWidget {
               ...List.generate(
                   insuranceOpps.length > 3 ? 3 : insuranceOpps.length, (index) {
                 final opp = insuranceOpps[index];
-                final category = _getClientCategory(opp.mfCurrentValue);
-                final style = _getCategoryStyle(category);
 
                 return Column(
                   children: [
@@ -367,16 +333,7 @@ class OpportunitiesInsurance extends StatelessWidget {
                       const Divider(height: 1, color: Color(0xFFE5E7EB)),
                       const SizedBox(height: 12),
                     ],
-                    _buildInsuranceLeadItem(
-                      context,
-                      initials: _getInitials(opp.userName),
-                      name: opp.userName,
-                      score: opp.coveragePercentage.toInt(),
-                      gap: _formatCurrency(opp.premiumOpportunityValue),
-                      badgeText: category,
-                      badgeColor: style['bgColor'] as Color,
-                      badgeTextColor: style['textColor'] as Color,
-                    ),
+                    InsuranceOpportunityItem(opportunity: opp),
                   ],
                 );
               }),
@@ -384,142 +341,6 @@ class OpportunitiesInsurance extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-
-  Widget _buildInsuranceLeadItem(
-    BuildContext context, {
-    required String initials,
-    required String name,
-    required int score,
-    required String gap,
-    required String badgeText,
-    required Color badgeColor,
-    required Color badgeTextColor,
-  }) {
-    return InkWell(
-      onTap: () {
-        // AutoRouter.of(context).push(
-        //   InsuranceDetailRoute(productVariant: InsuranceProductVariant.QUOTE),
-        // );
-        AutoRouter.of(context).push(InsuranceGenerateQuotesRoute(
-          productVariant: InsuranceProductVariant.HEALTH,
-          insuranceData: null,
-          selectedClient: null,
-        ));
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 2),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            // Avatar
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: const Color(0xFFEDE9FE),
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: Text(
-                  initials,
-                  style: const TextStyle(
-                    color: Color(0xFF6725F4),
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-
-            // Details
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        name,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF2D3748),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: badgeColor,
-                          borderRadius: BorderRadius.circular(50),
-                        ),
-                        child: Text(
-                          badgeText,
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: badgeTextColor,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Text(
-                        'Score: ',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Color(0xFF2D3748),
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      Text(
-                        '$score',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Color(0xFF2D3748),
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Text(
-                        'Gap: ',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Color(0xFF6B7280),
-                        ),
-                      ),
-                      Text(
-                        gap,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Color(0xFF6B7280),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            // Arrow
-            const Icon(
-              Icons.arrow_forward_ios,
-              size: 16,
-              color: Color(0xFF9CA3AF),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

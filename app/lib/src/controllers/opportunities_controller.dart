@@ -10,6 +10,8 @@ import 'package:core/modules/opportunities/models/opportunities_overview_model.d
 import 'package:core/modules/opportunities/models/portfolio_opportunity_model.dart';
 import 'package:core/modules/opportunities/models/sip_opportunity_model.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class OpportunitiesController extends GetxController {
   ApiResponse portfolioOpportunitiesResponse = ApiResponse();
@@ -24,9 +26,15 @@ class OpportunitiesController extends GetxController {
   InsuranceOpportunitiesResponse? insuranceOpportunities;
   OpportunitiesOverviewResponse? opportunitiesOverview;
 
+  // Cache keys
+  static const String _overviewCacheKey = 'opportunities_overview_cache';
+  static const String _overviewTimestampKey =
+      'opportunities_overview_timestamp';
+
   @override
   void onInit() {
     getOpportunitiesOverview();
+    initializeOpportunitiesData();
     super.onInit();
   }
 
@@ -38,8 +46,31 @@ class OpportunitiesController extends GetxController {
     ]);
   }
 
-  Future<void> getOpportunitiesOverview() async {
+  Future<void> getOpportunitiesOverview({bool forceRefresh = false}) async {
     try {
+      // Check cache first (unless force refresh is requested)
+      if (!forceRefresh) {
+        final prefs = await SharedPreferences.getInstance();
+        final cachedData = prefs.getString(_overviewCacheKey);
+        final cachedTimestamp = prefs.getString(_overviewTimestampKey);
+
+        if (cachedData != null && cachedTimestamp != null) {
+          // Cache exists, use it
+          try {
+            opportunitiesOverview = OpportunitiesOverviewResponse.fromJson(
+              jsonDecode(cachedData),
+            );
+            opportunitiesOverviewResponse.state = NetworkState.loaded;
+            update();
+            return; // Exit early, using cached data
+          } catch (e) {
+            // If cache parsing fails, continue to API call
+            print('Error parsing cached overview data: $e');
+          }
+        }
+      }
+
+      // No cache or cache error or force refresh, proceed with API call
       opportunitiesOverviewResponse.state = NetworkState.loading;
       update();
 
@@ -48,19 +79,23 @@ class OpportunitiesController extends GetxController {
       final data =
           await AdvisorRepository().getOpportunitiesOverview(apiKey ?? '');
 
-      await initializeOpportunitiesData();
-
       if (data['status'] == '200') {
         opportunitiesOverview = OpportunitiesOverviewResponse.fromJson(
           data['response'] ?? {},
         );
         opportunitiesOverviewResponse.state = NetworkState.loaded;
+
+        // Cache the successful response
+        await _cacheOverviewResponse(data['response'] ?? {});
       } else if (data['status'] == '404') {
         // Use mock data when API returns 404
         opportunitiesOverview = OpportunitiesOverviewResponse.fromJson(
           MockOpportunitiesData.overviewData,
         );
         opportunitiesOverviewResponse.state = NetworkState.loaded;
+
+        // Cache the mock data
+        await _cacheOverviewResponse(MockOpportunitiesData.overviewData);
       } else {
         opportunitiesOverviewResponse.message =
             getErrorMessageFromResponse(data['response']);
@@ -71,6 +106,42 @@ class OpportunitiesController extends GetxController {
       opportunitiesOverviewResponse.state = NetworkState.error;
     } finally {
       update();
+    }
+  }
+
+  Future<void> _cacheOverviewResponse(Map<String, dynamic> data) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_overviewCacheKey, jsonEncode(data));
+      await prefs.setString(
+        _overviewTimestampKey,
+        DateTime.now().toIso8601String(),
+      );
+    } catch (e) {
+      print('Error caching overview response: $e');
+    }
+  }
+
+  Future<void> clearOverviewCache() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_overviewCacheKey);
+      await prefs.remove(_overviewTimestampKey);
+    } catch (e) {
+      print('Error clearing overview cache: $e');
+    }
+  }
+
+  Future<DateTime?> getCachedOverviewTimestamp() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final timestampString = prefs.getString(_overviewTimestampKey);
+      if (timestampString != null) {
+        return DateTime.parse(timestampString);
+      }
+      return null;
+    } catch (e) {
+      return null;
     }
   }
 

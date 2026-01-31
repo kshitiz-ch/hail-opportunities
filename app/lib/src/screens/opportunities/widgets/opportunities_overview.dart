@@ -1,5 +1,8 @@
+import 'package:app/src/config/constants/color_constants.dart';
+import 'package:app/src/config/constants/enums.dart';
 import 'package:app/src/config/constants/image_constants.dart';
 import 'package:app/src/controllers/opportunities_controller.dart';
+import 'package:app/src/screens/opportunities/widgets/opportunities_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
@@ -14,6 +17,11 @@ class OpportunitiesOverview extends StatelessWidget {
         final overview = controller.opportunitiesOverview;
         final dashboardHero = overview?.dashboardHero;
 
+        if (controller.opportunitiesOverviewResponse.state ==
+            NetworkState.loading) {
+          return Center(child: OpportunitiesLoader());
+        }
+
         // If no data, return empty container
         if (dashboardHero == null) {
           return const SizedBox.shrink();
@@ -21,6 +29,7 @@ class OpportunitiesOverview extends StatelessWidget {
 
         return Container(
           padding: const EdgeInsets.all(20),
+          margin: EdgeInsets.symmetric(horizontal: 20),
           decoration: BoxDecoration(
             color: const Color(0xFFF5F3FF),
             borderRadius: BorderRadius.circular(16),
@@ -34,20 +43,41 @@ class OpportunitiesOverview extends StatelessWidget {
             children: [
               // Header with icon
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  SvgPicture.asset(
-                    AllImages().opportunitiesStar,
-                    width: 20,
-                    height: 20,
+                  Row(
+                    children: [
+                      SvgPicture.asset(
+                        AllImages().opportunitiesStar,
+                        width: 16,
+                        height: 16,
+                        color: ColorConstants.primaryAppColor,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'WEEKLY OPPORTUNITY SCAN',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF6B7280),
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'WEEKLY OPPORTUNITY SCAN',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: const Color(0xFF6B7280),
-                      letterSpacing: 0.5,
+                  // Retry button
+                  InkWell(
+                    onTap: () {
+                      controller.forceRefreshOpportunitiesOverview();
+                    },
+                    borderRadius: BorderRadius.circular(20),
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      child: const Icon(
+                        Icons.refresh,
+                        size: 20,
+                        color: Color(0xFF6725F4),
+                      ),
                     ),
                   ),
                 ],
@@ -119,6 +149,40 @@ class OpportunitiesOverview extends StatelessWidget {
                   ),
                 ],
               ),
+              const SizedBox(height: 16),
+
+              // Last Updated
+              FutureBuilder<DateTime?>(
+                future: controller.getCachedOverviewTimestamp(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData && snapshot.data != null) {
+                    final timestamp = snapshot.data!;
+                    final now = DateTime.now();
+                    final difference = now.difference(timestamp);
+
+                    String timeAgo;
+                    if (difference.inMinutes < 1) {
+                      timeAgo = 'Just now';
+                    } else if (difference.inHours < 1) {
+                      timeAgo = '${difference.inMinutes}m ago';
+                    } else if (difference.inDays < 1) {
+                      timeAgo = '${difference.inHours}h ago';
+                    } else {
+                      timeAgo = '${difference.inDays}d ago';
+                    }
+
+                    return Text(
+                      'Last Updated: $timeAgo',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF9CA3AF),
+                        fontStyle: FontStyle.italic,
+                      ),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
             ],
           ),
         );
@@ -148,8 +212,9 @@ class OpportunitiesOverview extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             value,
+            textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 20,
+              fontSize: 16,
               fontWeight: FontWeight.w700,
               color: const Color(0xFF2D3748),
             ),

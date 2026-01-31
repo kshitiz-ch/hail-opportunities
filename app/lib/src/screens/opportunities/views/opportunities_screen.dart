@@ -34,15 +34,15 @@ class OpportunitiesScreen extends StatelessWidget {
           state.controller?.initializeOpportunitiesData();
         },
         builder: (controller) {
-          if (controller.opportunitiesOverviewResponse.state ==
-              NetworkState.loading) {
-            return Center(
-              child: OpportunitiesLoader(
-                size: 60,
-                color: const Color(0xFF7F30FE),
-              ),
-            );
-          }
+          // if (controller.opportunitiesOverviewResponse.state ==
+          //     NetworkState.loading) {
+          //   return Center(
+          //     child: OpportunitiesLoader(
+          //       size: 60,
+          //       color: const Color(0xFF7F30FE),
+          //     ),
+          //   );
+          // }
 
           // if (controller.opportunitiesOverviewResponse.state ==
           //     NetworkState.error) {
@@ -55,8 +55,7 @@ class OpportunitiesScreen extends StatelessWidget {
           // }
 
           return SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20)
-                .copyWith(bottom: 100),
+            padding: const EdgeInsets.only(bottom: 100),
             child: Column(
               children: [
                 OpportunitiesOverview(),

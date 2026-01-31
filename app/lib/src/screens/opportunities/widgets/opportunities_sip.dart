@@ -1,6 +1,7 @@
 import 'package:app/src/config/routes/router.gr.dart';
 import 'package:app/src/controllers/opportunities_controller.dart';
 import 'package:app/src/screens/opportunities/views/opportunities_sip_screen.dart';
+import 'package:app/src/screens/opportunities/widgets/sip_opportunity_item.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:core/modules/clients/models/client_list_model.dart';
 import 'package:core/modules/clients/models/new_client_model.dart';
@@ -56,6 +57,7 @@ class _OpportunitiesSipState extends State<OpportunitiesSip> {
 
         return Container(
           padding: const EdgeInsets.all(16),
+          margin: EdgeInsets.symmetric(horizontal: 20),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
@@ -146,13 +148,14 @@ class _OpportunitiesSipState extends State<OpportunitiesSip> {
                     children: [
                       if (index > 0)
                         const Divider(height: 24, color: Color(0xFFE5E7EB)),
-                      _buildSipItem(
-                        context,
+                      SipOpportunityItem(
                         userId: opp.userId,
                         name: opp.userName,
                         fundName: opp.schemeName,
-                        statusText: 'No Step-up: ${opp.monthsStagnant} Yrs',
+                        statusText:
+                            'No Step-up in ${opp.monthsStagnant} Months',
                         isStopped: false,
+                        stagnantOpportunity: opp,
                       ),
                     ],
                   );
@@ -165,12 +168,12 @@ class _OpportunitiesSipState extends State<OpportunitiesSip> {
                     children: [
                       if (index > 0)
                         const Divider(height: 24, color: Color(0xFFE5E7EB)),
-                      _buildSipItem(
-                        context,
+                      SipOpportunityItem(
                         userId: opp.userId,
                         name: opp.userName,
-                        fundName:
-                            'Last Paid: ${_formatDate(opp.lastSuccessDate)}',
+                        fundName: [
+                          'Last Paid: ${_formatDate(opp.lastSuccessDate)}'
+                        ],
                         statusText: '${opp.daysSinceAnySuccess} Days Silent',
                         isStopped: true,
                       ),
@@ -209,92 +212,6 @@ class _OpportunitiesSipState extends State<OpportunitiesSip> {
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildSipItem(
-    BuildContext context, {
-    required String userId,
-    required String name,
-    required String fundName,
-    required String statusText,
-    bool isStopped = false,
-  }) {
-    // Create client object
-    final client = Client.fromJson({
-      'user_id': userId,
-      'name': name,
-    });
-
-    return InkWell(
-      onTap: () {
-        AutoRouter.of(context).push(
-          SipDetailRoute(
-              client: client, sipUserData: SipUserDataModel.fromJson({})),
-        );
-      },
-      child: Row(
-        children: [
-          // Details
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF2D3748),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  fundName,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF6B7280),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Status Badge with Arrow
-          Row(
-            children: [
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: isStopped
-                      ? const Color(0xFFFFE5E5)
-                      : const Color(0xFFF8EEE2),
-                  borderRadius: BorderRadius.circular(50),
-                ),
-                child: Text(
-                  statusText,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: isStopped
-                        ? const Color(0xFFDC2626)
-                        : const Color(0xFFF98814),
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              const Icon(
-                Icons.arrow_forward_ios,
-                size: 16,
-                color: Color(0xFF9CA3AF),
-              ),
-            ],
-          ),
-        ],
       ),
     );
   }
