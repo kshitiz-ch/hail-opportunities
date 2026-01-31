@@ -19,7 +19,7 @@ class OpportunitiesOverview extends StatelessWidget {
 
         if (controller.opportunitiesOverviewResponse.state ==
             NetworkState.loading) {
-          return Center(child: OpportunitiesLoader());
+          return Center(child: OpportunitiesLoadingView());
         }
 
         // If no data, return empty container

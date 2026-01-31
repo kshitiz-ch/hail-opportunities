@@ -705,7 +705,7 @@ class AdvisorAPI {
     dynamic headers = await ApiSdk.getHeaderInfo(apiKey);
     try {
       final apiUrl =
-          'https://d35234f9430c.ngrok-free.app/api/ai/dashboard-insights/';
+          'https://fec60eddd327.ngrok-free.app/api/ai/dashboard-insights/';
 
       final response = await RestApiHandlerData.getData(apiUrl, headers);
       return response;
