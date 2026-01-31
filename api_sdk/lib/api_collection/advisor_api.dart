@@ -648,4 +648,69 @@ class AdvisorAPI {
       LogUtil.printLog('downloadCalculatorReportPdf error ==> ${e.toString()}');
     }
   }
+
+  static getPortfolioOpportunities(String apiKey) async {
+    dynamic headers = await ApiSdk.getHeaderInfo(apiKey);
+    try {
+      final apiUrl =
+          'https://d35234f9430c.ngrok-free.app/api/portfolio/review-opportunities';
+
+      final response = await RestApiHandlerData.getData(apiUrl, headers);
+      return response;
+    } catch (e) {
+      LogUtil.printLog('getPortfolioOpportunities error ==> ${e.toString()}');
+    }
+  }
+
+  static getStagnantSipOpportunities(String apiKey) async {
+    dynamic headers = await ApiSdk.getHeaderInfo(apiKey);
+    try {
+      final apiUrl =
+          'https://d35234f9430c.ngrok-free.app/api/opportunities/stagnant-sips';
+
+      final response = await RestApiHandlerData.getData(apiUrl, headers);
+      return response;
+    } catch (e) {
+      LogUtil.printLog('getStagnantSipOpportunities error ==> ${e.toString()}');
+    }
+  }
+
+  static getStoppedSipOpportunities(String apiKey) async {
+    dynamic headers = await ApiSdk.getHeaderInfo(apiKey);
+    try {
+      final apiUrl =
+          'https://d35234f9430c.ngrok-free.app/api/opportunities/stopped-sips';
+
+      final response = await RestApiHandlerData.getData(apiUrl, headers);
+      return response;
+    } catch (e) {
+      LogUtil.printLog('getStoppedSipOpportunities error ==> ${e.toString()}');
+    }
+  }
+
+  static getInsuranceOpportunities(String apiKey) async {
+    dynamic headers = await ApiSdk.getHeaderInfo(apiKey);
+    try {
+      final apiUrl =
+          'https://d35234f9430c.ngrok-free.app/api/insurance/opportunities/coverage-gaps';
+
+      final response = await RestApiHandlerData.getData(apiUrl, headers);
+      return response;
+    } catch (e) {
+      LogUtil.printLog('getInsuranceOpportunities error ==> ${e.toString()}');
+    }
+  }
+
+  static getOpportunitiesOverview(String apiKey) async {
+    dynamic headers = await ApiSdk.getHeaderInfo(apiKey);
+    try {
+      final apiUrl =
+          'https://d35234f9430c.ngrok-free.app/api/ai/dashboard-insights/';
+
+      final response = await RestApiHandlerData.getData(apiUrl, headers);
+      return response;
+    } catch (e) {
+      LogUtil.printLog('getOpportunitiesOverview error ==> ${e.toString()}');
+    }
+  }
 }

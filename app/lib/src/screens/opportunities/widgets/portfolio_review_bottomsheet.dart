@@ -1,16 +1,44 @@
 import 'package:app/src/config/constants/color_constants.dart';
+import 'package:app/src/config/routes/router.gr.dart';
+import 'package:auto_route/auto_route.dart';
+import 'package:core/modules/clients/models/client_list_model.dart';
+import 'package:core/modules/clients/models/new_client_model.dart';
+import 'package:core/modules/opportunities/models/portfolio_opportunity_model.dart';
 import 'package:flutter/material.dart';
 
 class PortfolioReviewBottomSheet extends StatelessWidget {
-  const PortfolioReviewBottomSheet({Key? key}) : super(key: key);
+  final PortfolioClient client;
 
-  static void show(BuildContext context) {
+  const PortfolioReviewBottomSheet({
+    Key? key,
+    required this.client,
+  }) : super(key: key);
+
+  static void show(BuildContext context, PortfolioClient client) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => const PortfolioReviewBottomSheet(),
+      builder: (context) => PortfolioReviewBottomSheet(client: client),
     );
+  }
+
+  String _formatCurrency(double value) {
+    if (value >= 100000) {
+      return '₹${(value / 100000).toStringAsFixed(1)}L';
+    } else if (value >= 1000) {
+      return '₹${(value / 1000).toStringAsFixed(1)}K';
+    }
+    return '₹${value.toStringAsFixed(0)}';
+  }
+
+  double _calculateAverageXirrLag() {
+    if (client.underperformingSchemes.isEmpty) return 0;
+    final totalLag = client.underperformingSchemes.fold<double>(
+      0,
+      (sum, scheme) => sum + scheme.xirrUnderperformance,
+    );
+    return totalLag / client.underperformingSchemes.length;
   }
 
   @override
@@ -87,30 +115,32 @@ class PortfolioReviewBottomSheet extends StatelessWidget {
                     const SizedBox(width: 12),
                     Expanded(
                       child: RichText(
-                        text: const TextSpan(
-                          style: TextStyle(
+                        text: TextSpan(
+                          style: const TextStyle(
                             fontSize: 14,
                             color: Color(0xFF6B7280),
                             height: 1.5,
                           ),
                           children: [
-                            TextSpan(text: 'Identified '),
+                            const TextSpan(text: 'Identified '),
                             TextSpan(
-                              text: '3 funds',
-                              style: TextStyle(
+                              text:
+                                  '${client.numberOfUnderperformingSchemes} funds',
+                              style: const TextStyle(
                                 color: Color(0xFFDC2626),
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                            TextSpan(text: ' contributing to a '),
+                            const TextSpan(text: ' contributing to a '),
                             TextSpan(
-                              text: '5.2%',
-                              style: TextStyle(
+                              text:
+                                  '${_calculateAverageXirrLag().abs().toStringAsFixed(1)}%',
+                              style: const TextStyle(
                                 color: Color(0xFFDC2626),
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                            TextSpan(
+                            const TextSpan(
                                 text:
                                     ' XIRR lag. Generate a review report to analyze next steps.'),
                           ],
@@ -133,29 +163,24 @@ class PortfolioReviewBottomSheet extends StatelessWidget {
               ),
               const SizedBox(height: 20),
 
-              // Fund 1
-              _buildFundItem(
-                name: 'HDFC Midcap Fund',
-                value: '₹1.6L',
-                performance: '-8.1%',
-              ),
-
-              const Divider(height: 32, color: Color(0xFFE5E7EB)),
-
-              // Fund 2
-              _buildFundItem(
-                name: 'ICICI Value Discovery',
-                value: '₹0.7L',
-                performance: '-3.2%',
-              ),
-
-              const Divider(height: 32, color: Color(0xFFE5E7EB)),
-
-              // Fund 3
-              _buildFundItem(
-                name: 'SBI Bluechip Fund',
-                value: '₹2.1L',
-                performance: '-4.4%',
+              // Dynamic list of underperforming schemes
+              ...List.generate(
+                client.underperformingSchemes.length,
+                (index) {
+                  final scheme = client.underperformingSchemes[index];
+                  return Column(
+                    children: [
+                      if (index > 0)
+                        const Divider(height: 32, color: Color(0xFFE5E7EB)),
+                      _buildFundItem(
+                        name: scheme.schemeName,
+                        value: _formatCurrency(scheme.currentValue),
+                        performance:
+                            '${scheme.xirrUnderperformance.toStringAsFixed(1)}%',
+                      ),
+                    ],
+                  );
+                },
               ),
 
               const SizedBox(height: 32),
@@ -166,7 +191,12 @@ class PortfolioReviewBottomSheet extends StatelessWidget {
                 height: 56,
                 child: ElevatedButton(
                   onPressed: () {
-                    // Do nothing on click as per requirement
+                    AutoRouter.of(context).push(PortfolioReviewRoute(
+                        client: NewClientModel.fromJson({
+                      'user_id': client.userId,
+                      'customer_id': client.userId,
+                      'name': client.clientName
+                    })));
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: ColorConstants.primaryAppColor,

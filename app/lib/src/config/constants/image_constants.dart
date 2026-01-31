@@ -132,6 +132,7 @@ class AllImages {
   String brandingCreationIcon = 'assets/images/home/branding_creation_icon.png';
 
   String newFeatureTag = 'assets/images/home/new_feature_tag.png';
+  String opportunitiesStar = 'assets/images/home/opportunities_star.svg';
 
   //Home New
   String profileIcon = 'assets/images/home/profile_icon.png';

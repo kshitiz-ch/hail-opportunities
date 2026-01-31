@@ -1,4 +1,12 @@
+import 'package:app/src/config/routes/router.gr.dart';
+import 'package:app/src/controllers/opportunities_controller.dart';
+import 'package:app/src/screens/opportunities/views/opportunities_sip_screen.dart';
+import 'package:auto_route/auto_route.dart';
+import 'package:core/modules/clients/models/client_list_model.dart';
+import 'package:core/modules/clients/models/new_client_model.dart';
+import 'package:core/modules/clients/models/sip_user_data_model.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class OpportunitiesSip extends StatefulWidget {
   const OpportunitiesSip({Key? key}) : super(key: key);
@@ -10,142 +18,169 @@ class OpportunitiesSip extends StatefulWidget {
 class _OpportunitiesSipState extends State<OpportunitiesSip> {
   String selectedTab = 'Stagnant';
 
+  String _formatDate(String date) {
+    try {
+      final dt = DateTime.parse(date);
+      final months = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec'
+      ];
+      return '${months[dt.month - 1]} ${dt.year}';
+    } catch (e) {
+      return date;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Different data for each tab
-    final stagnantData = [
-      {
-        'name': 'Kiran Sharma',
-        'fundName': 'SBI Equity Hybrid',
-        'statusText': 'No Step-up: 3 Yrs',
-      },
-      {
-        'name': 'Priya Nair',
-        'fundName': 'HDFC Balanced Advantage',
-        'statusText': 'No Step-up: 4 Yrs',
-      },
-      {
-        'name': 'Amit Gupta',
-        'fundName': 'ICICI Multi-Asset',
-        'statusText': 'No Step-up: 2 Yrs',
-      },
-    ];
+    return GetBuilder<OpportunitiesController>(
+      builder: (controller) {
+        final stagnantOpps =
+            controller.stagnantSipOpportunities?.opportunities ?? [];
+        final stoppedOpps =
+            controller.stoppedSipOpportunities?.opportunities ?? [];
 
-    final stoppedData = [
-      {
-        'name': 'Vikram Shah',
-        'fundName': 'Last Paid: Oct 2025',
-        'statusText': '65 Days Silent',
-      },
-      {
-        'name': 'Amit Sharma',
-        'fundName': 'Last Paid: Nov 2025',
-        'statusText': '45 Days Silent',
-      },
-      {
-        'name': 'Priya Menon',
-        'fundName': 'Last Paid: Sep 2025',
-        'statusText': '90 Days Silent',
-      },
-    ];
+        if (stagnantOpps.isEmpty && stoppedOpps.isEmpty) {
+          return const SizedBox.shrink();
+        }
 
-    // Select data based on active tab
-    final currentData = selectedTab == 'Stagnant' ? stagnantData : stoppedData;
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: const Color(0xFFE5E7EB),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'SIP Health',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF2D3748),
-                ),
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: const Color(0xFFE5E7EB),
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                spreadRadius: 1,
+                blurRadius: 10,
+                offset: const Offset(0, 2),
               ),
-              TextButton(
-                onPressed: () {
-                  // Handle view all action
-                },
-                child: const Row(
-                  children: [
-                    Text(
-                      'View All',
-                      style: TextStyle(
-                        color: Color(0xFF6725F4),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'SIP Health',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF2D3748),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const OpportunitiesSipScreen(),
+                        ),
+                      );
+                    },
+                    child: const Row(
+                      children: [
+                        Text(
+                          'View All',
+                          style: TextStyle(
+                            color: Color(0xFF6725F4),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        SizedBox(width: 4),
+                        Icon(
+                          Icons.arrow_forward_ios,
+                          size: 14,
+                          color: Color(0xFF6725F4),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+
+              // Divider line
+              const Divider(height: 1, color: Color(0xFFE5E7EB)),
+              const SizedBox(height: 16),
+
+              // Tabs
+              Row(
+                children: [
+                  _buildTab('Stagnant', selectedTab == 'Stagnant'),
+                  const SizedBox(width: 8),
+                  _buildTab('Stopped', selectedTab == 'Stopped'),
+                ],
+              ),
+
+              const SizedBox(height: 16),
+
+              // Divider line
+              const Divider(height: 1, color: Color(0xFFE5E7EB)),
+              const SizedBox(height: 16),
+
+              // SIP Items - Dynamic from API based on selected tab (max 3 items)
+              if (selectedTab == 'Stagnant')
+                ...List.generate(
+                    stagnantOpps.length > 3 ? 3 : stagnantOpps.length, (index) {
+                  final opp = stagnantOpps[index];
+                  return Column(
+                    children: [
+                      if (index > 0)
+                        const Divider(height: 24, color: Color(0xFFE5E7EB)),
+                      _buildSipItem(
+                        context,
+                        userId: opp.userId,
+                        name: opp.userName,
+                        fundName: opp.schemeName,
+                        statusText: 'No Step-up: ${opp.monthsStagnant} Yrs',
+                        isStopped: false,
                       ),
-                    ),
-                    SizedBox(width: 4),
-                    Icon(
-                      Icons.arrow_forward_ios,
-                      size: 14,
-                      color: Color(0xFF6725F4),
-                    ),
-                  ],
-                ),
-              ),
+                    ],
+                  );
+                })
+              else
+                ...List.generate(
+                    stoppedOpps.length > 3 ? 3 : stoppedOpps.length, (index) {
+                  final opp = stoppedOpps[index];
+                  return Column(
+                    children: [
+                      if (index > 0)
+                        const Divider(height: 24, color: Color(0xFFE5E7EB)),
+                      _buildSipItem(
+                        context,
+                        userId: opp.userId,
+                        name: opp.userName,
+                        fundName:
+                            'Last Paid: ${_formatDate(opp.lastSuccessDate)}',
+                        statusText: '${opp.daysSinceAnySuccess} Days Silent',
+                        isStopped: true,
+                      ),
+                    ],
+                  );
+                }),
             ],
           ),
-
-          // Divider line
-          const Divider(height: 1, color: Color(0xFFE5E7EB)),
-          const SizedBox(height: 16),
-
-          // Tabs
-          Row(
-            children: [
-              _buildTab('Stagnant', selectedTab == 'Stagnant'),
-              const SizedBox(width: 8),
-              _buildTab('Stopped', selectedTab == 'Stopped'),
-            ],
-          ),
-
-          // Divider line
-          const Divider(height: 1, color: Color(0xFFE5E7EB)),
-          const SizedBox(height: 16),
-
-          // SIP Items - Dynamic based on selected tab
-          ...List.generate(currentData.length, (index) {
-            final item = currentData[index];
-            return Column(
-              children: [
-                if (index > 0)
-                  const Divider(height: 24, color: Color(0xFFE5E7EB)),
-                _buildSipItem(
-                  name: item['name']!,
-                  fundName: item['fundName']!,
-                  statusText: item['statusText']!,
-                  isStopped: selectedTab == 'Stopped',
-                ),
-              ],
-            );
-          }),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -178,70 +213,89 @@ class _OpportunitiesSipState extends State<OpportunitiesSip> {
     );
   }
 
-  Widget _buildSipItem({
+  Widget _buildSipItem(
+    BuildContext context, {
+    required String userId,
     required String name,
     required String fundName,
     required String statusText,
     bool isStopped = false,
   }) {
-    return Row(
-      children: [
-        // Details
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    // Create client object
+    final client = Client.fromJson({
+      'user_id': userId,
+      'name': name,
+    });
+
+    return InkWell(
+      onTap: () {
+        AutoRouter.of(context).push(
+          SipDetailRoute(
+              client: client, sipUserData: SipUserDataModel.fromJson({})),
+        );
+      },
+      child: Row(
+        children: [
+          // Details
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF2D3748),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  fundName,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF6B7280),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Status Badge with Arrow
+          Row(
             children: [
-              Text(
-                name,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF2D3748),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: isStopped
+                      ? const Color(0xFFFFE5E5)
+                      : const Color(0xFFF8EEE2),
+                  borderRadius: BorderRadius.circular(50),
+                ),
+                child: Text(
+                  statusText,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isStopped
+                        ? const Color(0xFFDC2626)
+                        : const Color(0xFFF98814),
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
-              const SizedBox(height: 4),
-              Text(
-                fundName,
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: Color(0xFF6B7280),
-                ),
+              const SizedBox(width: 8),
+              const Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: Color(0xFF9CA3AF),
               ),
             ],
           ),
-        ),
-
-        // Status Badge with Arrow
-        Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: isStopped
-                    ? const Color(0xFFFFE5E5)
-                    : const Color(0xFFF8EEE2),
-                borderRadius: BorderRadius.circular(50),
-              ),
-              child: Text(
-                statusText,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: isStopped
-                      ? const Color(0xFFDC2626)
-                      : const Color(0xFFF98814),
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            const Icon(
-              Icons.arrow_forward_ios,
-              size: 16,
-              color: Color(0xFF9CA3AF),
-            ),
-          ],
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

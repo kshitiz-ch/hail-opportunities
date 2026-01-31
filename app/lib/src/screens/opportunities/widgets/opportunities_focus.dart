@@ -294,165 +294,122 @@
 //   });
 // }
 
+import 'package:app/src/controllers/opportunities_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper_null_safety/flutter_swiper_null_safety.dart';
+import 'package:get/get.dart';
 
-class OpportunitiesFocus extends StatefulWidget {
+class OpportunitiesFocus extends StatelessWidget {
   const OpportunitiesFocus({Key? key}) : super(key: key);
 
   @override
-  State<OpportunitiesFocus> createState() => _OpportunitiesFocusState();
-}
-
-class _OpportunitiesFocusState extends State<OpportunitiesFocus> {
-  late List<ClientData> clients;
-
-  @override
-  void initState() {
-    super.initState();
-    clients = _getClientData();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Top Focus Clients',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF1A1A1A),
-                ),
-              ),
-              Text(
-                '${clients.length} clients',
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Color(0xFF6B7280),
-                ),
-              ),
-            ],
-          ),
-        ),
-        SizedBox(
-          height: 240,
-          child: Swiper(
-            itemCount: clients.length,
-            itemBuilder: (context, index) {
-              return ClientCard(client: clients[index]);
-            },
-            autoplay: false,
-            viewportFraction: 0.9,
-            scale: 0.95,
-            loop: clients.length > 1,
-          ),
-        ),
-      ],
-    );
-  }
+    return GetBuilder<OpportunitiesController>(
+      builder: (controller) {
+        final topFocusClients =
+            controller.opportunitiesOverview?.topFocusClients ?? [];
 
-  List<ClientData> _getClientData() {
-    return [
-      ClientData(
-        initials: 'RK',
-        name: 'Rajesh Kumar',
-        amount: '₹1.5 L',
-        bgColor: const Color(0xFFE9D5FF),
-        textColor: const Color(0xFF7C3AED),
-        tags: [
-          TagData('Risk: Stopped SIP', const Color(0xFFFEE2E2),
-              const Color(0xFFDC2626), Icons.warning_amber_rounded),
-          TagData('Opp: Insurance', const Color(0xFFEDE9FE),
-              const Color(0xFF7C3AED), Icons.lightbulb_outline),
-        ],
-        alert:
-            '💡 Critical: Monthly investment stopped 65 days ago, risking long-term...',
-      ),
-      ClientData(
-        initials: 'AR',
-        name: 'Aditi Rao',
-        amount: '₹50 K',
-        bgColor: const Color(0xFFE9D5FF),
-        textColor: const Color(0xFF7C3AED),
-        tags: [
-          TagData('Growth: Stagnant SIP', const Color(0xFFFED7AA),
-              const Color(0xFFEA580C), Icons.trending_up),
-        ],
-        alert: '💡 Inflation Risk: SIP running flat with 0% step-up.',
-      ),
-      ClientData(
-        initials: 'VS',
-        name: 'Vikram Shah',
-        amount: '₹2.1 L',
-        bgColor: const Color(0xFFE9D5FF),
-        textColor: const Color(0xFF7C3AED),
-        tags: [
-          TagData('Risk: Stopped SIP', const Color(0xFFFEE2E2),
-              const Color(0xFFDC2626), Icons.warning_amber_rounded),
-          TagData('Portfolio: Underperforming', const Color(0xFFE5E7EB),
-              const Color(0xFF6B7280), Icons.bar_chart),
-        ],
-        alert:
-            '💡 Alert: 3 funds underperforming benchmark by avg 4.5%, SIP stopped fo...',
-      ),
-      ClientData(
-        initials: 'PM',
-        name: 'Priya Menon',
-        amount: '₹3.2 L',
-        bgColor: const Color(0xFFE9D5FF),
-        textColor: const Color(0xFF7C3AED),
-        tags: [
-          TagData('Opp: Insurance', const Color(0xFFEDE9FE),
-              const Color(0xFF7C3AED), Icons.lightbulb_outline),
-          TagData('Growth: Stagnant SIP', const Color(0xFFFED7AA),
-              const Color(0xFFEA580C), Icons.trending_up),
-        ],
-        alert:
-            '💡 Ultra HNI with significant protection gap. High conversion probabili...',
-      ),
-      ClientData(
-        initials: 'AS',
-        name: 'Amit Sharma',
-        amount: '₹80 K',
-        bgColor: const Color(0xFFE9D5FF),
-        textColor: const Color(0xFF7C3AED),
-        tags: [
-          TagData('Portfolio: Underperforming', const Color(0xFFE5E7EB),
-              const Color(0xFF6B7280), Icons.bar_chart),
-        ],
-        alert:
-            '💡 2 large cap funds dragging returns. Switch to flexi-cap recommended.',
-      ),
-      ClientData(
-        initials: 'DN',
-        name: 'Deepa Nair',
-        amount: '₹1.8 L',
-        bgColor: const Color(0xFFE9D5FF),
-        textColor: const Color(0xFF7C3AED),
-        tags: [
-          TagData('Opp: Insurance', const Color(0xFFEDE9FE),
-              const Color(0xFF7C3AED), Icons.lightbulb_outline),
-        ],
-        alert:
-            '💡 Family floater upgrade recommended. Spouse and children uninsured.',
-      ),
-    ];
+        if (topFocusClients.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        return Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Top Focus Clients',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF1A1A1A),
+                    ),
+                  ),
+                  Text(
+                    '${topFocusClients.length} clients',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Color(0xFF6B7280),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 240,
+              child: Swiper(
+                itemCount: topFocusClients.length,
+                itemBuilder: (context, index) {
+                  return ClientCard(client: topFocusClients[index]);
+                },
+                autoplay: false,
+                viewportFraction: 0.9,
+                scale: 0.95,
+                loop: topFocusClients.length > 1,
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 
 class ClientCard extends StatelessWidget {
-  final ClientData client;
+  final dynamic client; // TopFocusClient from API
 
   const ClientCard({Key? key, required this.client}) : super(key: key);
 
+  String _getInitials(String name) {
+    final parts = name.split(' ');
+    if (parts.length >= 2) {
+      return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+    }
+    return name.substring(0, 1).toUpperCase();
+  }
+
+  Color _getTagColor(String tag, bool isBackground) {
+    if (tag.toLowerCase().contains('risk') ||
+        tag.toLowerCase().contains('stopped')) {
+      return isBackground ? const Color(0xFFFEE2E2) : const Color(0xFFDC2626);
+    } else if (tag.toLowerCase().contains('opp') ||
+        tag.toLowerCase().contains('insurance')) {
+      return isBackground ? const Color(0xFFEDE9FE) : const Color(0xFF7C3AED);
+    } else if (tag.toLowerCase().contains('growth') ||
+        tag.toLowerCase().contains('stagnant')) {
+      return isBackground ? const Color(0xFFFED7AA) : const Color(0xFFEA580C);
+    } else if (tag.toLowerCase().contains('portfolio') ||
+        tag.toLowerCase().contains('underperform')) {
+      return isBackground ? const Color(0xFFE5E7EB) : const Color(0xFF6B7280);
+    }
+    return isBackground ? const Color(0xFFE5E7EB) : const Color(0xFF6B7280);
+  }
+
+  IconData _getTagIcon(String tag) {
+    if (tag.toLowerCase().contains('risk') ||
+        tag.toLowerCase().contains('stopped')) {
+      return Icons.warning_amber_rounded;
+    } else if (tag.toLowerCase().contains('opp') ||
+        tag.toLowerCase().contains('insurance')) {
+      return Icons.lightbulb_outline;
+    } else if (tag.toLowerCase().contains('growth') ||
+        tag.toLowerCase().contains('stagnant')) {
+      return Icons.trending_up;
+    } else if (tag.toLowerCase().contains('portfolio') ||
+        tag.toLowerCase().contains('underperform')) {
+      return Icons.bar_chart;
+    }
+    return Icons.info_outline;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final initials = _getInitials(client.clientName);
+    final tags = client.tags as List<String>? ?? [];
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       padding: const EdgeInsets.all(20),
@@ -478,16 +435,16 @@ class ClientCard extends StatelessWidget {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: client.bgColor,
+                  color: const Color(0xFFE9D5FF),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Center(
                   child: Text(
-                    client.initials,
-                    style: TextStyle(
+                    initials,
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: client.textColor,
+                      color: Color(0xFF7C3AED),
                     ),
                   ),
                 ),
@@ -499,7 +456,7 @@ class ClientCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      client.name,
+                      client.clientName,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -508,20 +465,20 @@ class ClientCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      client.amount,
-                      style: TextStyle(
+                      client.totalImpactValue,
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
-                        color: client.textColor,
+                        color: Color(0xFF7C3AED),
                       ),
                     ),
                   ],
                 ),
               ),
               // Arrow icon
-              Icon(
+              const Icon(
                 Icons.chevron_right,
-                color: const Color(0xFF9CA3AF),
+                color: Color(0xFF9CA3AF),
                 size: 24,
               ),
             ],
@@ -531,29 +488,33 @@ class ClientCard extends StatelessWidget {
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: client.tags.map((tag) {
+            children: tags.map((tag) {
+              final bgColor = _getTagColor(tag, true);
+              final textColor = _getTagColor(tag, false);
+              final icon = _getTagIcon(tag);
+
               return Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
-                  color: tag.bgColor,
+                  color: bgColor,
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
-                      tag.icon,
+                      icon,
                       size: 14,
-                      color: tag.textColor,
+                      color: textColor,
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      tag.label,
+                      tag,
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        color: tag.textColor,
+                        color: textColor,
                       ),
                     ),
                   ],
@@ -562,9 +523,9 @@ class ClientCard extends StatelessWidget {
             }).toList(),
           ),
           const SizedBox(height: 16),
-          // Alert message
+          // Pitch Hook (Alert message)
           Text(
-            client.alert,
+            '💡 ${client.pitchHook}',
             style: const TextStyle(
               fontSize: 13,
               color: Color(0xFF4B5563),
@@ -577,33 +538,4 @@ class ClientCard extends StatelessWidget {
       ),
     );
   }
-}
-
-class ClientData {
-  final String initials;
-  final String name;
-  final String amount;
-  final Color bgColor;
-  final Color textColor;
-  final List<TagData> tags;
-  final String alert;
-
-  ClientData({
-    required this.initials,
-    required this.name,
-    required this.amount,
-    required this.bgColor,
-    required this.textColor,
-    required this.tags,
-    required this.alert,
-  });
-}
-
-class TagData {
-  final String label;
-  final Color bgColor;
-  final Color textColor;
-  final IconData icon;
-
-  TagData(this.label, this.bgColor, this.textColor, this.icon);
 }

@@ -537,4 +537,49 @@ class AdvisorRepository {
       LogUtil.printLog(e.toString());
     }
   }
+
+  Future<dynamic> getPortfolioOpportunities(String apiKey) async {
+    try {
+      final response = await AdvisorAPI.getPortfolioOpportunities(apiKey);
+      return response;
+    } catch (e) {
+      LogUtil.printLog(e.toString());
+    }
+  }
+
+  Future<dynamic> getStagnantSipOpportunities(String apiKey) async {
+    try {
+      final response = await AdvisorAPI.getStagnantSipOpportunities(apiKey);
+      return response;
+    } catch (e) {
+      LogUtil.printLog(e.toString());
+    }
+  }
+
+  Future<dynamic> getStoppedSipOpportunities(String apiKey) async {
+    try {
+      final response = await AdvisorAPI.getStoppedSipOpportunities(apiKey);
+      return response;
+    } catch (e) {
+      LogUtil.printLog(e.toString());
+    }
+  }
+
+  Future<dynamic> getInsuranceOpportunities(String apiKey) async {
+    try {
+      final response = await AdvisorAPI.getInsuranceOpportunities(apiKey);
+      return response;
+    } catch (e) {
+      LogUtil.printLog(e.toString());
+    }
+  }
+
+  Future<dynamic> getOpportunitiesOverview(String apiKey) async {
+    try {
+      final response = await AdvisorAPI.getOpportunitiesOverview(apiKey);
+      return response;
+    } catch (e) {
+      LogUtil.printLog(e.toString());
+    }
+  }
 }
