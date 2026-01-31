@@ -23,7 +23,7 @@ class OpportunitiesFocus extends StatelessWidget {
           children: [
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 20),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -32,29 +32,37 @@ class OpportunitiesFocus extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF1A1A1A),
+                      color: Color(0xFF1F2937),
                     ),
                   ),
-                  Text(
-                    '${topFocusClients.length} clients',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Color(0xFF6B7280),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF3F4F6),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      '${topFocusClients.length} clients',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF6B7280),
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
             SizedBox(
-              height: 240,
+              height: 220,
               child: Swiper(
                 itemCount: topFocusClients.length,
                 itemBuilder: (context, index) {
-                  return ClientCard(client: topFocusClients[index]);
+                  return FocusClientCard(client: topFocusClients[index]);
                 },
                 autoplay: false,
-                viewportFraction: 0.9,
-                scale: 0.95,
+                viewportFraction: 0.92,
+                scale: 0.97,
                 loop: topFocusClients.length > 1,
               ),
             ),
@@ -65,10 +73,10 @@ class OpportunitiesFocus extends StatelessWidget {
   }
 }
 
-class ClientCard extends StatelessWidget {
+class FocusClientCard extends StatelessWidget {
   final TopFocusClient client;
 
-  const ClientCard({Key? key, required this.client}) : super(key: key);
+  const FocusClientCard({Key? key, required this.client}) : super(key: key);
 
   String _getInitials(String name) {
     if (name.isEmpty) return '?';
@@ -79,27 +87,29 @@ class ClientCard extends StatelessWidget {
     return name.substring(0, 1).toUpperCase();
   }
 
-  Color _getTagBgColor(String tag) {
-    final lower = tag.toLowerCase();
-    if (lower.contains('risk') || lower.contains('stopped')) {
-      return const Color(0xFFFEE2E2);
-    } else if (lower.contains('opp') || lower.contains('insurance')) {
-      return const Color(0xFFEDE9FE);
-    } else if (lower.contains('growth') || lower.contains('stagnant')) {
-      return const Color(0xFFFED7AA);
-    } else if (lower.contains('portfolio') || lower.contains('underperform')) {
-      return const Color(0xFFE5E7EB);
+  // Determine the accent color based on risk type
+  Color _getAccentColor() {
+    // Check for risk indicators
+    final hasRisk = client.drillDownDetails.portfolioReview.hasIssue ||
+        client.drillDownDetails.sipHealth.stoppedSips.isNotEmpty;
+    final hasOpportunity = client.drillDownDetails.insurance.hasGap ||
+        client.drillDownDetails.sipHealth.stagnantSips.isNotEmpty;
+
+    if (hasRisk) {
+      return const Color(0xFFDC2626); // Red for risk
+    } else if (hasOpportunity) {
+      return const Color(0xFF16A34A); // Green for opportunity
     }
-    return const Color(0xFFE5E7EB);
+    return const Color(0xFF6725F4); // Purple default
   }
 
-  Color _getTagTextColor(String tag) {
+  Color _getTagColor(String tag) {
     final lower = tag.toLowerCase();
     if (lower.contains('risk') || lower.contains('stopped')) {
       return const Color(0xFFDC2626);
-    } else if (lower.contains('opp') || lower.contains('insurance')) {
-      return const Color(0xFF7C3AED);
-    } else if (lower.contains('growth') || lower.contains('stagnant')) {
+    } else if (lower.contains('insurance') || lower.contains('gap')) {
+      return const Color(0xFF0D9488);
+    } else if (lower.contains('stagnant') || lower.contains('growth')) {
       return const Color(0xFFEA580C);
     } else if (lower.contains('portfolio') || lower.contains('underperform')) {
       return const Color(0xFF6B7280);
@@ -107,37 +117,19 @@ class ClientCard extends StatelessWidget {
     return const Color(0xFF6B7280);
   }
 
-  IconData _getTagIcon(String tag) {
-    final lower = tag.toLowerCase();
-    if (lower.contains('risk') || lower.contains('stopped')) {
-      return Icons.warning_amber_rounded;
-    } else if (lower.contains('opp') || lower.contains('insurance')) {
-      return Icons.lightbulb_outline;
-    } else if (lower.contains('growth') || lower.contains('stagnant')) {
-      return Icons.trending_up;
-    } else if (lower.contains('portfolio') || lower.contains('underperform')) {
-      return Icons.bar_chart;
-    }
-    return Icons.info_outline;
-  }
-
   @override
   Widget build(BuildContext context) {
     final initials = _getInitials(client.clientName);
+    final accentColor = _getAccentColor();
     final tags = client.tags;
 
-    return InkWell(
-      onTap: () {
-        // Show Drill-Down Bottom Sheet
-        FocusClientBottomSheet.show(context, client);
-      },
-      borderRadius: BorderRadius.circular(16),
+    return GestureDetector(
+      onTap: () => FocusClientBottomSheet.show(context, client),
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-        padding: const EdgeInsets.all(20),
+        margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(14),
           border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
           boxShadow: [
             BoxShadow(
@@ -147,134 +139,148 @@ class ClientCard extends StatelessWidget {
             ),
           ],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
           children: [
-            Row(
-              children: [
-                // Avatar
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE9D5FF),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Center(
-                    child: Text(
-                      initials,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF7C3AED),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                // Name and Amount
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        client.clientName,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF1A1A1A),
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        client.formattedImpactValue,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF7C3AED),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                // Arrow icon
-                const Icon(
-                  Icons.chevron_right,
-                  color: Color(0xFF9CA3AF),
-                  size: 24,
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            // Tags
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: tags.map((tag) {
-                final bgColor = _getTagBgColor(tag);
-                final textColor = _getTagTextColor(tag);
-                final icon = _getTagIcon(tag);
-
-                return Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: bgColor,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        icon,
-                        size: 14,
-                        color: textColor,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        tag,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: textColor,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 12),
-            // Pitch Hook (Tip Box Style)
+            // Left Accent Border
             Container(
-              padding: const EdgeInsets.all(10),
+              width: 4,
+              height: double.infinity,
               decoration: BoxDecoration(
-                color: const Color(0xFFF0FDF4),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xFFBBF7D0), width: 1),
+                color: accentColor,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(14),
+                  bottomLeft: Radius.circular(14),
+                ),
               ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Icon(
-                    Icons.lightbulb_outline,
-                    size: 16,
-                    color: Color(0xFF16A34A),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      client.pitchHook,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Color(0xFF166534),
-                        height: 1.4,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+            ),
+
+            // Content
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header Row: Avatar + Name + Impact Value
+                    Row(
+                      children: [
+                        // Avatar
+                        Container(
+                          width: 42,
+                          height: 42,
+                          decoration: BoxDecoration(
+                            color: accentColor.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Center(
+                            child: Text(
+                              initials,
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                color: accentColor,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        // Name
+                        Expanded(
+                          child: Text(
+                            client.clientName,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF1F2937),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        // Impact Value
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF3E8FF),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            client.formattedImpactValue,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF6725F4),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
+
+                    const SizedBox(height: 14),
+
+                    // Pitch Hook (Subtle Container)
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF9FAFB),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: const Color(0xFFE5E7EB)),
+                      ),
+                      child: Text(
+                        client.pitchHook,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Color(0xFF4B5563),
+                          height: 1.4,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+
+                    const Spacer(),
+
+                    // Tags (Horizontal Scroll)
+                    SizedBox(
+                      height: 28,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: tags.map((tag) {
+                            final tagColor = _getTagColor(tag);
+                            return Container(
+                              margin: const EdgeInsets.only(right: 8),
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                              decoration: BoxDecoration(
+                                color: tagColor.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                tag,
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: tagColor,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // Chevron
+            const Padding(
+              padding: EdgeInsets.only(right: 12),
+              child: Icon(
+                Icons.chevron_right,
+                color: Color(0xFFD1D5DB),
+                size: 22,
               ),
             ),
           ],

@@ -1,6 +1,7 @@
 import 'package:app/src/config/routes/router.gr.dart';
 import 'package:app/src/screens/opportunities/widgets/sip_revival_bottomsheet.dart';
 import 'package:app/src/screens/opportunities/widgets/sip_stepup_bottomsheet.dart';
+import 'package:app/src/screens/opportunities/widgets/sip_simulator_sheet.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:core/modules/clients/models/client_list_model.dart';
 import 'package:core/modules/clients/models/sip_user_data_model.dart';
@@ -152,7 +153,12 @@ class SipOpportunityItem extends StatelessWidget {
       return GestureDetector(
         onTap: () {
           if (stagnantOpportunity != null) {
-            SipStepUpBottomSheet.show(context, stagnantOpportunity!);
+            SipSimulatorSheet.show(
+              context,
+              clientName: name,
+              userId: userId,
+              currentSipAmount: stagnantOpportunity!.currentSip,
+            );
           }
         },
         child: Container(

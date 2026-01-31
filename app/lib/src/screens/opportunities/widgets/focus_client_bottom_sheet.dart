@@ -1,7 +1,10 @@
+import 'package:app/src/screens/opportunities/widgets/sip_simulator_sheet.dart';
+import 'package:core/modules/opportunities/models/insurance_opportunity_model.dart';
 import 'package:core/modules/opportunities/models/opportunities_overview_model.dart';
+import 'package:core/modules/opportunities/serviecs/pdf_generation_service.dart';
 import 'package:flutter/material.dart';
 
-class FocusClientBottomSheet extends StatelessWidget {
+class FocusClientBottomSheet extends StatefulWidget {
   final TopFocusClient client;
 
   const FocusClientBottomSheet({Key? key, required this.client})
@@ -17,9 +20,95 @@ class FocusClientBottomSheet extends StatelessWidget {
   }
 
   @override
+  State<FocusClientBottomSheet> createState() => _FocusClientBottomSheetState();
+}
+
+class _FocusClientBottomSheetState extends State<FocusClientBottomSheet> {
+  bool _isGeneratingInsurance = false;
+
+  String _formatCurrency(double amount) {
+    if (amount >= 10000000) {
+      return 'Rs. ${(amount / 10000000).toStringAsFixed(2)}Cr';
+    } else if (amount >= 100000) {
+      return 'Rs. ${(amount / 100000).toStringAsFixed(2)}L';
+    } else if (amount >= 1000) {
+      return 'Rs. ${(amount / 1000).toStringAsFixed(0)}K';
+    }
+    return 'Rs. ${amount.toStringAsFixed(0)}';
+  }
+
+  Future<void> _generateInsurancePdf() async {
+    setState(() => _isGeneratingInsurance = true);
+
+    try {
+      // Create a temporary InsuranceOpportunity from FocusClient data
+      final gapAmount = widget.client.drillDownDetails.insurance.gapAmount;
+      
+      // Heuristic: Estimate premium as ~2% of sum assured (conservative term plan estimate)
+      final estimatedPremium = (gapAmount * 0.02).roundToDouble();
+      
+      final tempOpportunity = InsuranceOpportunity(
+        userId: widget.client.userId,
+        userName: widget.client.clientName,
+        age: 40, // Default age since FocusClient doesn't have it
+        mfCurrentValue: gapAmount,
+        insuranceStatus: 'Coverage Gap',
+        agentExternalId: '',
+        agentName: '',
+        totalPremium: estimatedPremium,
+        expectedPremium: estimatedPremium,
+        premiumOpportunityValue: estimatedPremium,
+        coveragePercentage: 0,
+      );
+
+      await PdfGeneratorService.generateInsuranceProposal(tempOpportunity);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Insurance proposal generated!'),
+            backgroundColor: Color(0xFF0D9488),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isGeneratingInsurance = false);
+    }
+  }
+
+  void _openSipSimulator() {
+    Navigator.pop(context); // Close this sheet first
+    
+    // Get SIP amount from first stopped SIP if available, otherwise default
+    double sipAmount = 10000;
+    final stoppedSips = widget.client.drillDownDetails.sipHealth.stoppedSips;
+    // Note: StagnantSip model in overview may not have amount field, so we default to 10000
+    
+    if (stoppedSips.isNotEmpty) {
+      sipAmount = stoppedSips.first.amount;
+    } 
+
+    SipSimulatorSheet.show(
+      context,
+      clientName: widget.client.clientName,
+      userId: widget.client.userId,
+      currentSipAmount: sipAmount,
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final drillDown = client.drillDownDetails;
-    // Ensure 0.6 to 0.95 height constraint
+    final drillDown = widget.client.drillDownDetails;
+
     return DraggableScrollableSheet(
       initialChildSize: 0.7,
       minChildSize: 0.5,
@@ -53,7 +142,7 @@ class FocusClientBottomSheet extends StatelessWidget {
                   controller: controller,
                   padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
                   children: [
-                    // --- HEADER ---
+                    // Header Row
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,29 +152,29 @@ class FocusClientBottomSheet extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                client.clientName,
+                                widget.client.clientName,
                                 style: const TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold,
                                   color: Color(0xFF1F2937),
-                                  overflow: TextOverflow.ellipsis,
                                 ),
                                 maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              const SizedBox(height: 4),
+                              const SizedBox(height: 6),
                               Container(
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 4),
+                                    horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
                                   color: const Color(0xFFF3E8FF),
-                                  borderRadius: BorderRadius.circular(6),
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
-                                  client.formattedImpactValue,
+                                  widget.client.formattedImpactValue,
                                   style: const TextStyle(
-                                    fontSize: 16,
+                                    fontSize: 18,
                                     fontWeight: FontWeight.w700,
-                                    color: Color(0xFF7C3AED),
+                                    color: Color(0xFF6725F4),
                                   ),
                                 ),
                               ),
@@ -107,22 +196,21 @@ class FocusClientBottomSheet extends StatelessWidget {
                       ],
                     ),
 
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 20),
 
                     // AI Insight Box
                     Container(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF0FDFA),
+                        color: const Color(0xFFF0FDF4),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                            color: const Color(0xFFCCFBF1), width: 1),
+                        border: Border.all(color: const Color(0xFFBBF7D0)),
                       ),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Icon(Icons.lightbulb_outline,
-                              color: Color(0xFF0D9488), size: 20),
+                              color: Color(0xFF16A34A), size: 20),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Column(
@@ -130,15 +218,15 @@ class FocusClientBottomSheet extends StatelessWidget {
                               children: [
                                 const Text('AI Insight',
                                     style: TextStyle(
-                                        fontSize: 12,
+                                        fontSize: 11,
                                         fontWeight: FontWeight.bold,
-                                        color: Color(0xFF115E59))),
+                                        color: Color(0xFF166534))),
                                 const SizedBox(height: 4),
                                 Text(
-                                  client.pitchHook,
+                                  widget.client.pitchHook,
                                   style: const TextStyle(
-                                      fontSize: 14,
-                                      color: Color(0xFF134E4A),
+                                      fontSize: 13,
+                                      color: Color(0xFF15803D),
                                       height: 1.4),
                                 ),
                               ],
@@ -147,20 +235,20 @@ class FocusClientBottomSheet extends StatelessWidget {
                         ],
                       ),
                     ),
+                    
                     const SizedBox(height: 24),
 
                     // --- SECTION 1: Portfolio Review ---
                     if (drillDown.portfolioReview.hasIssue) ...[
                       _buildSectionHeader(
                           '📉 Portfolio Underperformance', const Color(0xFFDC2626)),
+                      const SizedBox(height: 12),
                       Container(
-                        margin: const EdgeInsets.only(top: 12),
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
                           color: const Color(0xFFFEF2F2),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                              color: const Color(0xFFFECACA), width: 1),
+                          border: Border.all(color: const Color(0xFFFECACA)),
                         ),
                         child: Column(
                           children: drillDown.portfolioReview.schemes.map((s) {
@@ -175,11 +263,19 @@ class FocusClientBottomSheet extends StatelessWidget {
                                               fontSize: 14,
                                               fontWeight: FontWeight.w500,
                                               color: Color(0xFF1F2937)))),
-                                  Text('${s.xirrLag}% Lag',
-                                      style: const TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color(0xFFDC2626))),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFDC2626),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text('${s.xirrLag}% Lag',
+                                        style: const TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white)),
+                                  ),
                                 ],
                               ),
                             );
@@ -189,51 +285,87 @@ class FocusClientBottomSheet extends StatelessWidget {
                       const SizedBox(height: 24),
                     ],
 
-                    // --- SECTION 2: Insurance ---
+                    // --- SECTION 2: Insurance Gap ---
                     if (drillDown.insurance.hasGap) ...[
                       _buildSectionHeader(
-                          '🛡️ Coverage Gap', const Color(0xFF0D9488)),
+                          '🛡️ Insurance Gap', const Color(0xFF0D9488)),
+                      const SizedBox(height: 12),
                       Container(
-                        margin: const EdgeInsets.only(top: 12),
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFECFDF5),
+                          color: const Color(0xFFF0FDFA),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                              color: const Color(0xFFA7F3D0), width: 1),
+                          border: Border.all(color: const Color(0xFF99F6E4)),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        child: Column(
                           children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Text('Protection Gap',
-                                    style: TextStyle(
-                                        fontSize: 12,
-                                        color: Color(0xFF065F46))),
-                                Text(
-                                  'Rs. ${_formatCurrency(drillDown.insurance.gapAmount)}',
-                                  style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xFF047857)),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text('Protection Gap',
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            color: Color(0xFF0F766E))),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      _formatCurrency(drillDown.insurance.gapAmount),
+                                      style: const TextStyle(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.w800,
+                                          color: Color(0xFF0D9488)),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
-                            OutlinedButton(
-                              onPressed: () {
-                                // TODO: Generte Insurance PDF
-                              },
-                              style: OutlinedButton.styleFrom(
-                                side: const BorderSide(
-                                    color: Color(0xFF0D9488)),
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20)),
+                            const SizedBox(height: 14),
+                            // CTA: Pitch Term Plan
+                            GestureDetector(
+                              onTap: _isGeneratingInsurance ? null : _generateInsurancePdf,
+                              child: Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                decoration: BoxDecoration(
+                                  color: _isGeneratingInsurance
+                                      ? const Color(0xFFE5E7EB)
+                                      : const Color(0xFF0D9488),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    if (_isGeneratingInsurance)
+                                      const SizedBox(
+                                        width: 16,
+                                        height: 16,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Color(0xFF6B7280),
+                                        ),
+                                      )
+                                    else
+                                      const Icon(Icons.picture_as_pdf_outlined,
+                                          color: Colors.white, size: 18),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      _isGeneratingInsurance
+                                          ? 'Generating...'
+                                          : 'Pitch Term Plan',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: _isGeneratingInsurance
+                                            ? const Color(0xFF6B7280)
+                                            : Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                              child: const Text('Pitch Term Plan',
-                                  style: TextStyle(color: Color(0xFF0D9488))),
-                            )
+                            ),
                           ],
                         ),
                       ),
@@ -244,24 +376,30 @@ class FocusClientBottomSheet extends StatelessWidget {
                     if (drillDown.sipHealth.stoppedSips.isNotEmpty ||
                         drillDown.sipHealth.stagnantSips.isNotEmpty) ...[
                       _buildSectionHeader(
-                          '⚠️ SIP Issues', const Color(0xFFEA580C)),
+                          '⚠️ SIP Health Issues', const Color(0xFFEA580C)),
                       const SizedBox(height: 12),
-                      
-                      // Stopped SIPs
+
+                      // List Stopped SIPs
                       ...drillDown.sipHealth.stoppedSips.map((sip) {
                         return Container(
-                          margin: const EdgeInsets.only(bottom: 12),
+                          margin: const EdgeInsets.only(bottom: 10),
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             color: const Color(0xFFFFF7ED),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                                color: const Color(0xFFFED7AA), width: 1),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: const Color(0xFFFED7AA)),
                           ),
                           child: Row(
                             children: [
-                              const Icon(Icons.restore,
-                                  color: Color(0xFFEA580C), size: 20),
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFEA580C).withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Icon(Icons.pause_circle_outline,
+                                    color: Color(0xFFEA580C), size: 18),
+                              ),
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Column(
@@ -271,34 +409,15 @@ class FocusClientBottomSheet extends StatelessWidget {
                                         style: const TextStyle(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w600,
-                                            color: Color(0xFF1F2937))),
+                                            color: Color(0xFF1F2937)),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis),
                                     Text(
-                                        'Stopped ${sip.daysStopped} days ago • Rs. ${_formatCurrency(sip.amount)}',
+                                        'Stopped ${sip.daysStopped} days • ${_formatCurrency(sip.amount)}',
                                         style: const TextStyle(
                                             fontSize: 12,
-                                            color: Color(0xFF9A3412))),
+                                            color: Color(0xFFC2410C))),
                                   ],
-                                ),
-                              ),
-                              // Revival Button
-                              GestureDetector(
-                                onTap: () {
-                                  // Map to StoppedSipOpportunity and open sheet
-                                  // Note: This requires full data mapping which might be better handled in the controller
-                                  // For now, simpler implementation
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 6),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFEA580C),
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  child: const Text('Revive',
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600)),
                                 ),
                               ),
                             ],
@@ -306,21 +425,27 @@ class FocusClientBottomSheet extends StatelessWidget {
                         );
                       }).toList(),
 
-                      // Stagnant SIPs
-                       ...drillDown.sipHealth.stagnantSips.map((sip) {
+                      // List Stagnant SIPs
+                      ...drillDown.sipHealth.stagnantSips.map((sip) {
                         return Container(
-                          margin: const EdgeInsets.only(bottom: 12),
+                          margin: const EdgeInsets.only(bottom: 10),
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             color: const Color(0xFFFAF5FF),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                                color: const Color(0xFFE9D5FF), width: 1),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: const Color(0xFFE9D5FF)),
                           ),
                           child: Row(
                             children: [
-                              const Icon(Icons.trending_up,
-                                  color: Color(0xFF7C3AED), size: 20),
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF6725F4).withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Icon(Icons.trending_flat,
+                                    color: Color(0xFF6725F4), size: 18),
+                              ),
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Column(
@@ -330,38 +455,59 @@ class FocusClientBottomSheet extends StatelessWidget {
                                         style: const TextStyle(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w600,
-                                            color: Color(0xFF1F2937))),
+                                            color: Color(0xFF1F2937)),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis),
                                     Text(
                                         'No step-up for ${sip.yearsRunning} years',
                                         style: const TextStyle(
                                             fontSize: 12,
-                                            color: Color(0xFF6B21A8))),
+                                            color: Color(0xFF7C3AED))),
                                   ],
-                                ),
-                              ),
-                               // Step-up Button
-                              GestureDetector(
-                                onTap: () {
-                                  // Trigger logic
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 6),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFF7C3AED),
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  child: const Text('Step-up',
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600)),
                                 ),
                               ),
                             ],
                           ),
                         );
                       }).toList(),
+
+                      const SizedBox(height: 8),
+
+                      // CTA: Simulate Step-up
+                      GestureDetector(
+                        onTap: _openSipSimulator,
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF6725F4),
+                            borderRadius: BorderRadius.circular(10),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF6725F4).withOpacity(0.3),
+                                blurRadius: 8,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.calculate_outlined,
+                                  color: Colors.white, size: 18),
+                              SizedBox(width: 8),
+                              Text(
+                                'Simulate Step-up',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ],
                   ],
                 ),
@@ -379,7 +525,7 @@ class FocusClientBottomSheet extends StatelessWidget {
         Text(
           title,
           style: TextStyle(
-            fontSize: 18,
+            fontSize: 16,
             fontWeight: FontWeight.w700,
             color: color,
           ),
@@ -390,16 +536,5 @@ class FocusClientBottomSheet extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  String _formatCurrency(double amount) {
-    if (amount >= 10000000) {
-      return '${(amount / 10000000).toStringAsFixed(2)} Cr';
-    } else if (amount >= 100000) {
-      return '${(amount / 100000).toStringAsFixed(2)} L';
-    } else if (amount >= 1000) {
-      return '${(amount / 1000).toStringAsFixed(0)} K';
-    }
-    return amount.toStringAsFixed(0);
   }
 }
